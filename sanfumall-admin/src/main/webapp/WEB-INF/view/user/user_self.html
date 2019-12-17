@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>个人信息</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			/* 打开修改密码模态框  */
+			function changePwd(userId) {
+				var title="<span class='fa fa-wrench'></span> 修改密码";
+				var url="/user/changePwd?userId=" + userId;
+				var width="500px";
+				var height="300px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改头像模态框  */
+			function changeImg(userId) {
+				var title="<span class='fa fa-wrench'></span> 修改头像";
+				var url="/user/changeImg?userId=" + userId;
+				var width="600px";
+				var height="500px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+		</script>
+	</head>
+	<body background="/static/images/bg02.png" style="background-repeat: no-repeat;background-size: 100% 100%;background-attachment: fixed;">
+		<div class="table-responsive">
+            <table class="table table-bordered" style="width: 502px; margin: 0 auto; border-color: black;">
+            	<caption>
+            		<strong>个人详情</strong>
+            	</caption>
+              	<tbody>
+                	<tr>
+                		<td>ID</td>
+	                  	<td th:text="${user.userId}"></td>
+						<td>编号</td>
+	                  	<td th:text="${user.userNo}"></td>
+	                  	<td rowspan="3" style="padding: 0 0 0 7px;">
+	                  		<div style="width: 68px; height: 75px;">
+	                  			<img alt="" th:src="${user.imgUrl}"  style="width: 48px; height: 48px; margin: 10px 0 0 0;">
+	                  		</div>
+	                  		<div>
+	                  			<a th:href="|javascript:changeImg(${user.userId})|">更换头像</a>
+	                  		</div>
+	                  	</td>
+                	</tr>
+					<tr>
+                		<td>姓名</td>
+	                  	<td th:text="${user.username}"></td>
+						<td>性别</td>
+	                  	<td th:if="${user.gender} eq 'M'"><span style="color: blue;">男</span></td>
+	                  	<td th:unless="${user.gender} eq 'M'"><span style="color: red;">女</span></td>
+                	</tr>
+                	<tr>
+                		<td>身份证号</td>
+	                  	<td th:text="${user.idCard}"></td>
+						<td>出生日期</td>
+	                  	<td th:text="${birthday}"></td>
+                	</tr>
+                	<tr>
+                		<td>登录名</td>
+	                  	<td th:text="${user.loginName}"></td>
+						<td>角色</td>
+	                  	<td colspan="2" th:text="${user.role.roleName}"></td>
+                	</tr>
+                	<tr>
+                		<td>联系电话</td>
+	                  	<td th:text="${user.cellphone}"></td>
+						<td>电子邮箱</td>
+	                  	<td colspan="2" th:text="${user.email}"></td>
+                	</tr>
+                	<tr>
+						<td>状态</td>
+	                  	<td th:if="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: red;"></td>
+	                  	<td colspan="3">
+							<a th:href="|javascript:changePwd(${user.userId})|">修改密码</a>
+						</td>
+                	</tr>
+              	</tbody>
+			</table>
+    	</div>
+	</body>
+</html>

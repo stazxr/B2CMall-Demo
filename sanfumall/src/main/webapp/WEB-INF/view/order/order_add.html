@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+	  	<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+	  	<meta charset="UTF-8">
+	  	<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+	  	<link rel="stylesheet" href="/static/css/main.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/common/layui/layui.js"></script>
+  		<script src="/static/js/jquery-3.3.1.min.js"></script>
+		<style>
+			#my-address {
+				padding: 10px 0 10px 200px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="site-nav-bg" style="min-width: 1394px;">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+			        <i class="layui-icon layui-icon-home"></i>
+			        <a href="/" target="_blank">首页</a>
+		      	</p>
+		    </div>
+		</div>
+		<div class="header" style="min-width: 1394px;">
+		    <div class="headerLayout w1200">
+		      	<div class="headerCon">
+		        	<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png">
+		          		</a>
+        			</h1>
+		    	</div>
+		  	</div>
+		</div>
+	  	<div class="content content-nav-base shopcart-content">
+	  		<strong style="margin-left: 100px;">确认收货地址</strong>
+	    	<div class="main-nav" style="min-width: 1394px;"></div>
+	    	<div>
+	    		<div id="my-address" th:each="address:${addressList}">
+	    			<input type="radio" name="addressId" th:value="${address.addressId}" th:text="|${address.consigneeAddress} ${address.consigneeDetailAddress} （${address.consigneeName} 收） ${address.consigneeCellphone}&nbsp;&nbsp;&nbsp;默认地址|" th:if="${address.sortOrder} == 1" checked="checked" />
+	    			<input type="radio" name="addressId" th:value="${address.addressId}" th:text="|${address.consigneeAddress} ${address.consigneeDetailAddress} （${address.consigneeName} 收） ${address.consigneeCellphone}|" th:unless="${address.sortOrder} == 1" />
+	    		</div>
+	    	</div>
+	    	<strong style="margin-left: 100px;">确认订单信息</strong>
+	    	<div class="main-nav" style="min-width: 1394px;"></div>
+	    	<div class="cart w1200" style="margin-left: 100px;">
+		      	<div class="cart-table-th">
+		        	<div class="th th-price" style="width: 330px;">
+		          		<div class="th-inner">
+		            		商品
+		          		</div>
+		        	</div>
+		        	<div class="th th-price" style="width: 290px;">
+		          		<div class="th-inner">
+		           			 单价
+		          		</div>
+		        	</div>
+		        	<div class="th th-amount" style="width: 290px;">
+		          		<div class="th-inner">
+		            		数量
+		          		</div>
+		        	</div>
+		        	<div class="th th-sum" style="width: 290px;">
+		          		<div class="th-inner">
+		            		小计
+		          		</div>
+		        	</div>
+		      	</div>
+		      	<div class="OrderList">
+		        	<div class="order-content" id="list-cont">
+		          		<ul class="item-content layui-clear" th:each="orderItem:${orderItemList}">
+		            		<li class="th th-item" style="padding: 0; left: 0; margin: 0; width: 330px;">
+			              		<div class="item-cont">
+			                		<a th:href="@{/product/detail(productId=${orderItem.sku.product.productId})}" target="_blank"><img th:src="|http://localhost:8080${orderItem.sku.product.mainImg}|" alt=""></a>
+			                		<div class="text">
+			                  			<div class="title" th:text="${orderItem.sku.product.productName}"></div>
+				                  		<p>
+				                  			<span th:each="value:${orderItem.sku.valueList}" th:text="|${value.valueName}&nbsp;|"></span>
+				                  			<input type="hidden" name="skuId" th:value="${orderItem.sku.skuId}" />
+				                  		</p>
+			                		</div>
+			              		</div>
+			            	</li>
+		            		<li class="th th-price" style="width: 290px; line-height: 100px;">
+		              			<span class="th-su" th:text="|￥${orderItem.currentPrice}|"></span>
+		              			<input type="hidden" name="currentPrice" th:value="${orderItem.currentPrice}" />
+				            </li>
+				            <li class="th th-amount" style="width: 290px; line-height: 100px;">
+				                <span th:text="${orderItem.count}"></span>
+				                <input type="hidden" name="count" th:value="${orderItem.count}" />
+				            </li>
+				            <li class="th th-sum" style="width: 287px; line-height: 100px;">
+				              	<span class="sum" th:text="|￥${orderItem.totalPrice}|"></span>
+				              	<input type="hidden" id="totalPrice" class="totalPrice" name="totalPrice" th:value="${orderItem.totalPrice}" />
+				            </li>
+		          		</ul>
+		        	</div>
+		      	</div>
+	      		<div class="FloatBarHolder layui-clear">
+		      		<div class="th Settlement">
+		          		<button class="layui-btn">提交订单</button>
+		        	</div>
+		        	<div class="th total">
+		          		<p>实付款：<span class="pieces-total" th:text="${pay}"></span></p>
+		        	</div>
+		      	</div>
+	    	</div>
+	  	</div>
+	</body>
+</html>

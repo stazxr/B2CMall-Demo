@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>区域三级联动效果展示</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<style>
+			 select {
+				width: 180px;
+				height: 26px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+		</style>
+		<script>
+			function getSecondAreaList() {
+				var areaCode = $("#province").val();
+				$.ajax({
+					url: "/area/getSubAreaList",
+					type: "get",
+					data: {"parentCode": areaCode},
+					dataType: "json",
+					success: function(data) {
+						$("#city option").remove();
+						var areaList = data;
+						for (var i = 0 ; i < areaList.length; i++) {
+							var area = areaList[i];
+							var option = "<option value='" + area.areaCode + "'>" + area.areaName + "</option>";
+							$("#city").append(option);
+						}
+						var firstAreaCode = areaList[0].areaCode;
+						getThirdAreaList(firstAreaCode);
+					}
+				});
+			}
+			
+			function getThirdAreaList(firstAreaCode) {
+				var areaCode = null;
+				if (firstAreaCode == null) {
+					areaCode = $("#city").val();
+				} else {
+					areaCode = firstAreaCode;
+				}
+				$.ajax({
+					url: "/area/getSubAreaList",
+					type: "get",
+					data: {"parentCode": areaCode},
+					dataType: "json",
+					success: function(data) {
+						$("#county option").remove();
+						var areaList = data;
+						if (areaList.length == 0) {
+							$("#county").hide();
+						} else {
+							$("#county").show();
+							for (var i = 0 ; i < areaList.length; i++) {
+								var area = areaList[i];
+								var option = "<option value='" + area.areaCode + "'>" + area.areaName + "</option>";
+								$("#county").append(option);
+							}
+						}
+					}
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<select id="province" onchange="getSecondAreaList()">
+			<option value="0">--- 省 ---</option>
+			<option th:each="area:${fistAreaList}" th:value="${area.areaCode}" th:text="${area.areaName}"></option>
+		</select>
+		<select id="city" onchange="getThirdAreaList()">
+			<option>--- 市 ---</option>
+		</select>
+		<select id="county">
+			<option>--- 县 ---</option>
+		</select>
+	</body>
+</html>

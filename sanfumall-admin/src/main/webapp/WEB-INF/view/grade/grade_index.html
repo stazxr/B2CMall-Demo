@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>会员等级列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增会员等级模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-user-plus'></span> 新增会员等级信息";
+				var url="/grade/add";
+				var width="550px";
+				var height="450px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+
+			/* 打开修改会员等级模态框  */
+			function openUpdateModal(gradeId) {
+				var title="<span class='fa fa-wrench'></span> 修改会员等级信息";
+				var url="/grade/update?gradeId=" + gradeId;
+				var width="550px";
+				var height="450px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getGradeListByLike() {
+				var keyword = $("#search").val();
+				var url = "/grade/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 修改会员等级状态  */
+			function changeStatus(gradeId, gradeName, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + gradeName + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + gradeName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/grade/changeStatus/" + gradeId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(gradeName + "已被启用！");
+								} else {
+									alert(gradeName + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(gradeName + "启用失败！");
+								} else {
+									alert(gradeName + "禁用失败！");
+								}
+							}
+							var url = "/grade/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新会员等级列表页面 */
+			function refreshPage() {
+				var url = "/grade/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件 */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据会员等级名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getGradeListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		新增会员等级
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>会员等级信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>ID</th>
+	                  <th>名称</th>
+	                  <th>积分</th>
+	                  <th>折扣</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="grade:${page.list}">
+	                  	<td th:text="${grade.gradeId}"></td>
+	                  	<td th:text="${grade.gradeName}"></td>
+	                  	<td th:text="|${grade.minPoint}~${grade.maxPoint}|"></td>
+	                  	<td th:text="${grade.discount}"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${grade.gradeId})|">修改</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/grade/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/grade/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/grade/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/grade/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

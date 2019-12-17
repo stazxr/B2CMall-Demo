@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>类别修改页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			var reg = /^([0-9]+)$/;
+    			 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var updateForm = $("#updateForm").serialize();
+					$.ajax({
+						url: "/category/update",
+						method: "put",
+						data: updateForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+							} else {
+								alert("修改失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/category/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			$(function() {
+				$("#updateForm").validate({
+					rules: {
+						categoryName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/category/remoteValidateCategoryInfo",
+								type: "get",
+								data: {
+									"categoryName": function() {
+										var categoryName = $("#categoryName").val();
+										return categoryName;
+									},
+									"categoryId": function() {
+										var categoryId = $("#categoryId").val();
+										return categoryId;
+									}
+								}
+							}
+						},
+						sortOrder: {
+							required: true,
+							digits: true,
+							range: [1,100000]
+						}
+					},
+					messages: {
+						categoryName: {
+							required: "类别名称不能为空",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "该类别名称已被占用"
+						},
+						sortOrder: {
+							required: "排序字段不能为空",
+							digits: "必须输入正整数",
+							range: "输入的值不能过大"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			// 在加载页面时，检测是修改一级类别，还是二级类别
+			$(function(){
+				var level = $("#level").val();
+				if (level == '2') {
+					$("#firstCategoryId").show();
+				} else {
+					$("#firstCategoryId").hide();
+				}
+			});	
+			
+			// 检测是添加一级类别，还是二级类别
+			function checkLevel() {
+				var level = $("#level").val();
+				if (level == '2') {
+					$("#firstCategoryId").show();
+				} else {
+					$("#firstCategoryId").hide();
+				}
+			}
+			
+			// 关闭模态框，返回类别列表页面
+			function backList() {
+				parent.closeModal();
+				var url = "/category/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="updateForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="level" style="text-align: right; line-height: 34px;">类别等级 </label>
+									<!-- 如果是一级类别，不允许修改为二级类别  -->
+									<div class="col-xs-7" th:if="${category.parent} == null">
+										<input type="hidden" name="level" value="1" />
+										<input type="text" class="form-control" value="一级类别" readonly />
+									</div>
+									<!-- 如果是二级类别，可以修改为一级类别，显示select框  -->
+									<div class="col-xs-7" th:unless="${category.parent} == null">
+										<select id="level" name="level" class="form-control" onchange="checkLevel()">
+											<option value="1">一级类别</option>
+											<option value="2" selected>二级类比</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group" id="firstCategoryId">
+									<label class="col-xs-3 control-label" for="parent_id" style="text-align: right; line-height: 34px;">选择上级类别</label>
+									<div class="col-xs-7">
+										<!-- 如果修改对象是一级类别，因为不允许修改为二级类别，所以该部分不显示 -->
+										<span th:if="${category.parent} == null"></span>
+										<!-- 如果修改对象是二级类别，回显上级类别 -->
+										<span th:unless="${category.parent} == null">
+											<select name="parentId" class="form-control">
+												<option th:selected="${category.parent.categoryId} eq ${firstCategory.categoryId}" th:each="firstCategory:${firstCategoryList}" th:value="${firstCategory.categoryId}" th:text="${firstCategory.categoryName}"></option>
+											</select>
+										</span>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="categoryName" style="text-align: right; line-height: 34px;">类别名称</label>
+									<div class="col-xs-7">
+										<input type="hidden" id="categoryId" name="categoryId" th:value="${category.categoryId}" />
+										<input type="text" class="form-control" id="categoryName" name="categoryName" th:value="${category.categoryName}" placeholder="请输入类别名称" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="sortOrder" style="text-align: right; line-height: 34px;">排序字段</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="sortOrder" name="sortOrder" th:value="${category.sortOrder}" placeholder="请输入排序字段" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 提交</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+  	<head>
+	    <title>sanfu后台管理系统</title>
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+	    <link rel="stylesheet" href="/static/css/main.css">
+	    <link rel="stylesheet" href="/static/css/font-awesome.css">
+	    <script>
+    		// 打开iframe框架
+	    	function openFrame(url) {
+    			var iframe="<iframe width='100%' height='600px' onscroll='true' src='" + url + "' style='border: 0;min-height: 580px;'></iframe>"; 
+	    		$("#myframe").html(iframe);
+    		}
+    		
+    		// 打开模态框
+    		function openModal(title, url, width, height) {
+    			$("#myModalContent").css({
+    				"width": width
+    			});
+    			$("#myModalTitle").html(title);
+    			// 设定弹框需要展示的页面地址
+    			var iframe = "<iframe width='100%' height='" + height + "' onscroll='true' src='" + url + "' style='border: 0px;'></iframe>";
+    			$("#myModalBody").html(iframe);
+    			$("#myModal").modal({
+					keyboard: false,
+					backdrop: 'static'
+				});
+    		}
+    		
+    		// 关闭模态框
+    		function closeModal(){
+		    	$('#myModal').modal('hide');
+		    }
+	    </script>
+  	</head>
+  	<body class="app sidebar-mini rtl" style="font-family: 仿宋;">
+		<!-- header -->
+    	<header class="app-header">
+    		<a class="app-header__logo" href="/">Sanfu System</a>
+      		<a class="app-sidebar__toggle" href="#" data-toggle="sidebar"></a>
+      		<ul class="app-nav">
+        		<!-- 退出 -->
+        		<li class="dropdown">
+        			<a class="app-nav__item" href="/user/logout">
+        				<i class="fa fa-sign-out fa-lg"></i>
+        			</a>
+        		</li>
+      		</ul>
+    	</header>
+    	<!-- sidebar -->
+    	<div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+	    <aside class="app-sidebar">
+			<!-- 登录管理员信息 -->	      	
+	      	<div class="app-sidebar__user">
+	      		<img class="app-sidebar__user-avatar" th:if="${session.user.imgUrl} != null" th:src="${session.user.imgUrl}" alt="" style="width: 36px; height: 36px;">
+	      		<img class="app-sidebar__user-avatar" th:unless="${session.user.imgUrl} != null" src="/static/images/systemImg/other/user01.png" alt="" style="width: 36px; height: 36px;">
+	        	<div>
+       				<p class="app-sidebar__user-name" th:text="|欢迎：${session.user.username}|"></p>
+       				<p class="app-sidebar__user-designation" th:text="${session.user.role.roleName}"></p>
+	        	</div>
+	      	</div>
+	      	<!-- 左侧导航栏 -->
+      		<ul class="app-menu">
+        		<li class="treeview" th:each="menu:${menuList}">
+        			<a class="app-menu__item" href="#" data-toggle="treeview">
+        				<i th:class="|app-menu__icon ${menu.icon}|"></i>&nbsp;
+        				<span class="app-menu__label" th:text="${menu.menuName}"></span>
+        				<i class="treeview-indicator fa fa-angle-right"></i>
+        			</a>
+          			<ul class="treeview-menu">
+           				<li th:each="secondMenu:${menu.menuList}">
+           					<a class="treeview-item" th:href="|javascript:openFrame('${secondMenu.url}')|">
+           						<i th:class="|app-menu__icon ${secondMenu.icon}|"></i>&nbsp;
+           						<span th:text="${secondMenu.menuName}"></span>
+           					</a>
+           				</li>
+          			</ul>
+        		</li>
+      		</ul>
+	    </aside>
+	    <!-- iframe -->
+		<div id="myframe" class="app-content" style="padding: 0; min-height: 605px;"></div>
+		<!-- modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true" style="margin:0 auto;">
+			<div class="modal-dialog">
+				<div class="modal-content" id="myModalContent">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalTitle"></h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body" id="myModalBody"></div>
+				</div>
+			</div>
+		</div>
+	    <script src="/static/js/jquery-3.2.1.min.js"></script>
+	    <script src="/static/js/popper.min.js"></script>
+	    <script src="/static/js/bootstrap.min.js"></script>
+	    <script src="/static/js/main.js"></script>
+  	</body>
+</html>

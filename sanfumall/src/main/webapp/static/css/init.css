@@ -1,0 +1,81 @@
+/* 清除所有元素的默认内外边距 */
+* {
+	margin: 0;
+	padding: 0;
+}
+/* 清除ul列表的默认样式 */
+ul, li {
+	list-style: none;
+}
+/* 清除超链接的样式 */
+a, a:hover, a:visited, a:link {
+	/* 清除边框 */
+	border: 0;
+	/* 不展示边框外轮廓 */
+	outline: none;
+	/* 取消超链接的下划线 */
+	text-decoration: none;
+	/* 设置鼠标悬停样式为手式 */
+	cursor: pointer;
+	/* 反正超链接文本自动换行 */
+	white-space: nowrap;
+}
+
+/* 给bootstrap增加多级下拉菜单的功能 */
+.dropdown-submenu{
+	/* 固定所有三级菜单的位置 */
+    position:relative;
+		height: 40px;
+}
+.dropdown-submenu > .dropdown-menu{
+    top:0;
+    left:100%;
+    margin-top: 0;
+    margin-left: 0;
+		padding: 0;
+		border: none;
+}
+.dropdown-submenu:hover > .dropdown-menu{
+    display:block;
+}
+.dropdown-submenu > a:after{
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+	/* 显示向右的箭头 */
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#cccccc;
+    margin-top:5px;
+    margin-right:-10px;	
+}
+.dropdown-submenu:hover > a:after{
+    border-left-color:#ffffff;
+}
+.dropdown-submenu .pull-left{
+    float:none;
+}
+.dropdown-submenu.pull-left > .dropdown-menu{
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
+}
+/*去除bootstrap关于导航栏的响应式布局 */
+@media (min-width: 0) {
+  .navbar-nav {
+    float: left;
+    margin: 0;
+  }
+  .navbar-nav > li {
+    float: left;
+  }
+  .navbar-nav > li > a {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+}

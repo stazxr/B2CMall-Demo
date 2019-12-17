@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>会员等级修改</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			var reg = /^([0-9]+)$/;
+    			 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			// 库存与积分的校验
+			jQuery.validator.addMethod("isPoint", function(value, element) {   
+			    var store = /^([1-9]\d*|[0]{1,1})$/;
+			    return this.optional(element) || (store.test(value));
+			}, "请输入正整数！");
+			// 折扣的校验
+			jQuery.validator.addMethod("isDiscount", function(value, element) {   
+			    var discount = /^(0\.(?!0+$)\d{1,2}|1(\.0{1,2})?)$/;
+			    return this.optional(element) || (discount.test(value));
+			}, "(0,1],两位小数");
+			
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var updateForm = $("#updateForm").serialize();
+					$.ajax({
+						url: "/grade/update",
+						method: "put",
+						data: updateForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+							} else {
+								alert("修改失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/grade/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			$(function() {
+				$("#updateForm").validate({
+					rules: {
+						gradeName: {
+							required: true,
+							checkInput: true,
+							minlength: 2,
+							remote: {
+								url: "/grade/remoteValidateGradeInfo",
+								type: "get",
+								data: {
+									"gradeId": function() {
+										var gradeId = $("#gradeId").val();
+										return gradeId;
+									},
+									"gradeName": function() {
+										var gradeName = $("#gradeName").val();
+										return gradeName;
+									}
+								}
+							}
+						},
+						minPoint: {
+							required: true,
+							isPoint: true
+						},
+						maxPoint: {
+							required: true,
+							isPoint: true
+						},
+						discount: {
+							required: true,
+							isDiscount: true
+						},
+						sortOrder: {
+							required: true,
+							isPoint: true
+						}
+					},
+					messages: {
+						gradeName: {
+							required: "不能为空",	
+							checkInput: "禁止输入特殊字符及空格",
+							minlength: "长度不能小于2个单位",
+							remote: "该名称已被占用"
+						},
+						minPoint: {
+							required: "不能为空",
+							isPoint: "请输入正整数"
+						},
+						maxPoint: {
+							required: "不能为空",
+							isPoint: "请输入正整数"
+						},
+						discount: {
+							required: "不能为空",
+							isDiscount: "(0,1]，最多两位小数"
+						},
+						sortOrder: {
+							required: "不能为空",
+							isPoint: "请输入正整数"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/grade/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="updateForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="gradeName" style="text-align: right; line-height: 34px;">会员等级名称 </label>
+									<div class="col-xs-7">
+										<input type="hidden" id="gradeId" name="gradeId" th:value="${grade.gradeId}" />
+										<input type="text" class="form-control" id="gradeName" name="gradeName" th:value="${grade.gradeName}" placeholder="请输入会员等级名称" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="minPoint" style="text-align: right; line-height: 34px;">最小积分</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="minPoint" name="minPoint" th:value="${grade.minPoint}" placeholder="请输入最小积分" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="maxPoint" style="text-align: right; line-height: 34px;">最大积分 </label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="maxPoint" name="maxPoint" th:value="${grade.maxPoint}" placeholder="请输入最大积分" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="discount" style="text-align: right; line-height: 34px;">折扣</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="discount" name="discount" th:value="${grade.discount}" placeholder="请输入折扣" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="sortOrder" style="text-align: right; line-height: 34px;">排序字段</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="sortOrder" name="sortOrder" th:value="${grade.sortOrder}" placeholder="请输入排序字段" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 提交</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

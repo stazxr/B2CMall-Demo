@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+	  	<title th:text="${product.title}"></title>
+	  	<meta charset="UTF-8">
+	  	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	  	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+	  	<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+	  	<link rel="stylesheet" href="/static/css/main.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/js/jquery-3.3.1.min.js"></script>
+	  	<script src="/static/common/layui/layui.js"></script>
+	  	<style>
+  			.alert-warning {
+  				border: 1px solid #ffb4a8;
+  				border-radius: 4px;
+  				color: #6C6C6C;
+  				background-color: #fef2f2;
+  				float: right;
+			    min-width: 920px;
+			    height: 40px;
+			    line-height: 40px;
+			    margin: 30px 30px 0 0;
+  			}
+			select {
+				width: 180px;
+				height: 26px;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+			}
+  		</style>
+  		<script>
+  			$(function() {
+				var detail = $("#detail").val();
+				$("#detailDiv").html(detail);
+			});
+  			
+  			function star(productName) {
+  				var member = $("#member").val();
+  				if (member == null || "" == member) {
+  					alert("你好，请先登录");
+  					location.href="/member/login";
+  				} else {
+  					var productId = $("#productId").val();
+  	  				var flag = confirm("你确定要收藏" + productName + "吗?");
+  	  				if (flag) {
+  	  					$.ajax({
+  							url: "/star/add/" + productId,
+  							type: "post",
+  							dataType: "json",
+  							success: function(data) {
+  								if (data) {
+  									alert("该商品已经添加到您的收藏夹");
+  									location.reload(true);	
+  								} else {
+  									alert("收藏失败");
+  								}
+  							}
+  	  					});
+  	  				} else {
+  	  					return false;
+  	  				}	
+  				}
+			}
+  			
+  			function cancleStar(productName) {
+  				var productId = $("#productId").val();
+  				var flag = confirm("你确定要取消收藏" + productName + "吗?");
+  				if (flag) {
+  					$.ajax({
+						url: "/star/deleteStar/" + productId,
+						type: "delete",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								alert("该商品已经从收藏夹中移除");
+								location.reload(true);	
+							} else {
+								return false;
+							}
+						}
+  					});
+  				} else {
+  					return false;
+  				}
+			}
+  			
+  			/* 添加购物车吧  */
+  			$(function() {
+  				$("#addCart").click(function() {
+  					var member = $("#member").val();
+  	  				if (member == null || "" == member) {
+  	  					alert("你好，请先登录");
+  	  					location.href="/member/login";
+  	  				} else {
+  	  					var skuId = $("#skuId").val();
+  	  					var count = $("#count").val();
+	  	  				$.ajax({
+							url: "/cart/add/" + skuId + "/" + count,
+							type: "post",
+							dataType: "json",
+							success: function(data) {
+								if (data) {
+									alert("添加成功，在购物等你~~");
+									location.reload(true);	
+								} else {
+									return false;
+								}
+							}
+	  					});
+  	  				}
+				});
+  			});
+  			
+  			/* 立即购买  */
+  			$(function() {
+  				$("#createOrder").click(function() {
+  					var member = $("#member").val();
+  	  				if (member == null || "" == member) {
+  	  					alert("你好，请先登录");
+  	  					location.href="/member/login";
+  	  				} else {
+  	  					var skuId = $("#skuId").val();
+  	  					var count = $("#count").val();
+						location.href="/order/add?skuId=" + skuId + "&count=" + count;
+  	  				}
+				});
+  			});
+  		</script>
+	</head>
+	<body>
+		<input type="hidden" id="member" th:value="${session.member}" />
+  		<div class="site-nav-bg" style="min-width: 1394px;">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+			        <i class="layui-icon layui-icon-home"></i>
+			        <a href="/index" target="_blank">首页</a>
+		      	</p>
+		    </div>
+		</div>
+		<div class="header" style="min-width: 1394px;">
+    		<div class="headerLayout w1200">
+      			<div class="headerCon">
+        			<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png">
+		          		</a>
+        			</h1>
+        			<div class="alert-warning">
+						 为确保您账户的安全及正常使用，依《SanFu规章》相关要求，会员账号需绑定邮箱，以便登录以及密码的找回，感谢您的理解及支持！
+					</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="content content-nav-base datails-content">
+    		<div class="main-nav" style="min-width: 1394px;"></div>
+    		<div class="data-cont-wrap w1200">
+		      	<div class="crumb">
+			      	<a href="/index">首页</a><span>></span>
+			      	<a href="#">所有商品</a><span>></span>
+			      	<a href="#">产品详情</a>
+		      	</div>
+      			<div class="product-intro layui-clear">
+        			<div class="preview-wrap">
+          				<a href="#"><img th:src="'http://localhost:8080' + ${product.mainImg}" style="width: 400px; height: 400px;"></a>
+        			</div>
+        			<div class="itemInfo-wrap">
+          				<form id="myForm">
+          					<div class="itemInfo">
+	            				<div class="title">
+	              					<h4 th:text="${product.title}"> </h4>
+	              					<input type="hidden" id="productId" th:value="${product.productId}" />
+	              					<span th:if="${isStar} == false"><a th:href="|javascript:star('${product.productName}')|">收藏</a></span>
+	              					<span th:unless="${isStar} == false"><a th:href="|javascript:cancleStar('${product.productName}')|">取消收藏</a></span>
+	            				</div>
+	            				<div class="summary">
+	            					<input type="hidden" id="skuId" name="skuId" />
+					              	<p class="reference"><span>原价</span> <del></del></p>
+					              	<p class="activity"><span>活动价</span><strong class="price"><i>￥</i><span id="price"></span></strong></p>
+	            				</div>
+	            				<div class="choose-attrs">
+	              					<div class="color layui-clear" th:each="item: ${attrValue}">
+	              						<span class="title" th:text="${item.key}"></span>
+	              						<div class="color-cont">
+	              							<select class="valueId" onchange="checkPriceAndStore()">
+	              								<option th:each="value:${item.value}" th:text="${value.valueName}" th:value="${value.valueId}"></option>
+	              							</select>
+	              						</div>
+	              					</div>
+	              					<div class="number layui-clear">
+	              						<span class="title">数量</span>
+	              						<div class="number-cont">
+	              							<span class="cut btn">-</span><input onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}" maxlength="4" type="text" id="count" name="count" value="1" readonly="readonly"><span class="add btn">+</span>&nbsp;库存（<span id="store"></span>件）
+	              						</div>
+	              					</div>
+	            				</div>
+	            				<div class="choose-btns">
+					              	<button type="button" id="createOrder" class="layui-btn layui-btn-primary purchase-btn">立刻购买</button>
+					              	<button type="button" id="addCart" class="layui-btn layui-btn-danger car-btn"><i class="layui-icon layui-icon-cart-simple"></i>加入购物车</button>  
+	            				</div>
+	          				</div>
+          				</form>
+        			</div>
+      			</div>
+      			<div class="layui-clear">
+        			<div class="aside">
+          				<h4>相关推荐</h4>
+          				<div class="item-list" style="max-width: 372px;">
+            				<div class="item" th:each="aboutProduct:${aboutProductList}" style="width: 280px; max-height: 344px;">
+	              				<a th:href="@{/product/detail(productId=${aboutProduct.productId})}" target="_blank">
+	              					<img th:src="'http://localhost:8080/' + ${aboutProduct.mainImg}" style="width: 280px; height: 280px;">
+	              				</a>
+	              				<p><span th:text="${aboutProduct.productName}"></span><span class="pric" th:text="|￥${aboutProduct.minPrice}|"></span></p>
+            				</div>
+          				</div>
+        			</div>
+        			<div class="detail" style="width: 800px;min-width: 800px;">
+          				<h4>详情</h4>
+			          	<div class="item" id="detailDiv">
+			            	<input type="hidden" id="detail" th:value="${detail}" />
+          				</div>
+        			</div>
+      			</div>
+    		</div>
+  		</div>
+		<script type="text/javascript">
+		  	layui.config({
+		    	base: '/static/js/util/'
+		  	}).use(['mm','jquery'],function(){
+		      	var mm = layui.mm,$ = layui.$;
+		      	var cur = $('.number-cont input').val();
+		      	var store = $("#store").text();
+		      	$('.number-cont .btn').on('click',function(){
+		        	if($(this).hasClass('add') && cur < 5 && cur < store) {
+		          		cur++;
+		        	} else if ($(this).hasClass('cut') && cur > 1) {
+			            cur--;
+		        	}
+					$('.number-cont input').val(cur);
+		      	})
+		  	});
+
+		  	/* 动态获取每个SKU的价格与库存  */
+		  	function checkPriceAndStore() {
+				var valueIdList = document.getElementsByClassName("valueId");
+				if (valueIdList.length == 1) {
+					var valueId1 = valueIdList[0].value;
+					var productId = $("#productId").val();
+					$.ajax({
+						url: "/product/getPriceAndStore",
+						type: "get",
+						data: {"valueId1": valueId1,
+							"productId": productId},
+						dataType: "json",
+						success: function(data) {
+							var priceList = data[0].split(",");
+							$("del").text(priceList[0]);
+							$("#price").text(priceList[1]);
+							var store = priceList[2];
+							$("#store").text(store);
+							if (store == 0) {
+								$('.number-cont input').val(store);
+								$(".choose-btns").hide();								
+							}
+							$("#skuId").val(priceList[3]);
+						}
+					});
+				} else if (valueIdList.length == 2) {
+					var valueId1 = valueIdList[0].value;
+					var valueId2 = valueIdList[1].value;
+					var productId = $("#productId").val();
+					$.ajax({
+						url: "/product/getPriceAndStore",
+						type: "get",
+						data: {"valueId1": valueId1,
+							"valueId2": valueId2,
+							"productId": productId},
+						dataType: "json",
+						success: function(data) {
+							var priceList = data[0].split(",");
+							$("del").text(priceList[0]);
+							$("#price").text(priceList[1]);
+							var store = priceList[2];
+							$("#store").text(store);
+							if (store == 0) {
+								$('.number-cont input').val(store);
+								$(".choose-btns").hide();								
+							}
+							$("#skuId").val(priceList[3]);
+						}
+					});
+				} else {
+					var productId = $("#productId").val();
+					$.ajax({
+						url: "/product/getPriceAndStore",
+						type: "get",
+						data: {"productId": productId},
+						dataType: "json",
+						success: function(data) {
+							var priceList = data[0].split(",");
+							$("del").text(priceList[0]);
+							$("#price").text(priceList[1]);
+							var store = priceList[2];
+							$("#store").text(store);
+							if (store == 0) {
+								$('.number-cont input').val(store);
+								$(".choose-btns").hide();								
+							}
+							$("#skuId").val(priceList[3]);
+						}
+					});
+				}
+			}
+		  	$(function() {
+		  		checkPriceAndStore();	
+			});
+		</script>
+	</body>
+</html>

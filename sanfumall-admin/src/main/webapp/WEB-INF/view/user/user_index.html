@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>管理员列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增管理员模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-user-plus'></span> 新增管理员信息";
+				var url="/user/add";
+				var width="550px";
+				var height="600px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改管理员模态框  */
+			function openUpdateModal(userId) {
+				var title="<span class='fa fa-wrench'></span> 修改管理员信息";
+				var url="/user/update/" + userId;
+				var width="550px";
+				var height="480px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开管理员详情模态框  */
+			function openDetailModal(userId) {
+				var title="<span class='fa fa-user-secret'></span> 管理员详情";
+				var url="/user/detail/" + userId;
+				var width="400px";
+				var height="420px";	
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 修改管理员状态  */
+			function changeStatus(userId, username, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + username + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + username + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/user/changeStatus/" + userId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(username + "已被启用！");
+								} else {
+									alert(username + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(username + "启用失败！");
+								} else {
+									alert(username + "禁用失败！");
+								}
+							}
+							var url = "/user/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getUserListByLike() {
+				var keyword = $("#search").val();
+				var url = "/user/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 刷新管理员列表页面 */
+			function refreshPage() {
+				var url = "/user/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件 */
+			$(function() {
+			    $( document ).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据姓名、编号、性别、状态、角色查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getUserListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		新增管理员
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover">
+            	<caption>
+            		<strong>管理员信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>编号</th>
+	                  <th>姓名</th>
+	                  <th>登录名</th>
+	                  <th>性别</th>
+	                  <th>联系电话</th>
+	                  <th>电子邮箱</th>
+	                  <th>职位</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="user:${page.list}">
+	                  	<td th:text="${user.userNo}"></td>
+	                  	<td th:text="${user.username}"></td>
+	                  	<td th:text="${user.loginName}"></td>
+	                  	<td th:if="${user.gender} eq 'M'" style="color: blue;">男</td>
+	                  	<td th:unless="${user.gender} eq 'M'" style="color: red;">女</td>
+	                  	<td th:text="${user.cellphone}"></td>
+	                  	<td th:text="${user.email}"></td>
+	                  	<td th:text="${user.role.roleName}"></td>
+	                  	<td th:if="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: orange;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${user.userId})|">详情</a>
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${user.userId})|">修改</a>
+                				<a class="btn btn-success btn-sm" th:if="${user.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${user.userId},'${user.username}','ENABLE')|">启用</a>
+                				<a class="btn btn-danger btn-sm" th:unless="${user.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${user.userId},'${user.username}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="4" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="5" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/user/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/user/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/user/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/user/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

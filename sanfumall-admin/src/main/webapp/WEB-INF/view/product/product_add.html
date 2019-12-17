@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>商品添加页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/uploadify/uploadify.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script src="/static/common/uploadify/jquery.uploadify.js"></script>
+		<script src="/static/common/WangEditor/wangEditor.min.js"></script>
+		<style>
+			table caption {
+				font-size: 26px;
+			    color: red;
+			    border-bottom: 2px solid #333; 
+			    text-indent: 5px;
+			    -webkit-animation: blue 10s infinite; /* Chrome, Safari, Opera */
+			    animation: blue 10s infinite;
+			}
+			/* Chrome, Safari, Opera */
+			@-webkit-keyframes blue {
+			    50% {color: blue;}
+			}
+			/* Standard syntax */
+			@keyframes blue {
+			    50% {color: blue;}
+			}
+			.my-caption {
+				font-size: 16px;
+				color: #666;
+			}
+			#sku > tr > th, #sku > tr > td {
+				text-align: center;
+				white-space: nowrap;
+			}
+			#sku input {
+				width: 140px;
+				text-align:center;
+			}
+		</style>
+		<script>
+			// 在加载页面时，启动uploadify插件
+			$(function(){
+				/* 上传主图片 */
+				$("#file").uploadify({
+					// 不限制上传图片的大小
+					"fileSizeLimit" : "0",
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/productImgUpload",
+					// 设定上传方式
+					"method": "post",
+					// 设定上传的文本内容
+					"buttonText": "上传主图片",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "uploadProductImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/productImg/" + data;
+						$("#mainImgUrl").val(src);
+						$("#mainImg").attr("src", src);
+					},
+					// 检测不到兼容的flash时触发的事件
+					"onFallback" : function() { 
+			            alert("未检测到Flash,请启用flash插件。"); 
+			        }
+				});
+				
+				/* 上传副图片 */
+				$("#file2").uploadify({
+					// 不限制上传图片的大小
+					"fileSizeLimit" : "0",
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/productImgUpload",
+					// 设定上传方式
+					"method": "post",
+					// 设定上传的文本内容
+					"buttonText": "上传副图片",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "uploadProductImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/productImg/" + data;
+						$("#subImgUrl").val(src);
+						$("#subImg").attr("src", src);
+					}
+				});
+			});
+			
+			/* 富文本编辑器  */
+			var editor;
+			$(function() {
+				var E = window.wangEditor
+		        editor = new E("#myEditor");
+				// 关闭网络上传
+				editor.customConfig.showLinkImg = false;
+				// 服务器路径
+		        editor.customConfig.uploadImgServer = "/file/productUpload";
+				// 参数名
+		        editor.customConfig.uploadFileName = "uploadProduct";
+				// 回显富文本编辑器的图片
+		        editor.customConfig.uploadImgHooks = {
+		            customInsert: function (insertImg, result, editor) {
+		            	var url = result.url;
+		                insertImg("/static/images/productImg/detail/" + url);
+		            }
+		        };
+				// 创建富文本编辑器
+		        editor.create();
+				// 设置富文本编辑器的宽度
+		        $(".w-e-text-container").css("width", "800px");
+				// 设置富文本编辑器的高度
+		        $(".w-e-text-container").css("height", "500px");
+			});
+			
+			/* 根据一级categoryId获取对应的二级类别集合,并追加到select[id=secondCategory]中  */
+			function getSecondCategory() {
+				var categoryId = $("#firstCategory").val();
+				$.ajax({
+					url: "/category/getSecondCategoryById/" + categoryId,
+					method: "get",
+					dataType: "json",
+					success: function(data){
+						$("#secondCategory option").remove();
+						for (var i = 0; i < data.length; i++){
+							var secondCategory = data[i];
+							var option = "<option value=" + secondCategory.categoryId + ">" + secondCategory.categoryName + "</option>";
+							$("#secondCategory").append(option);
+						}
+					}
+				});
+			}
+			
+			/* 选择商品销售信息 */
+			function addAttributeAndValue() {
+				var categoryId = $("#secondCategory").val();
+				$.ajax({
+					url: "/attribute/getAttributeAndValueList/" + categoryId,
+					method: "get",
+					dataType: "json",
+					success: function(data) {
+						// 获取该类别下的属性集合
+						var attributeLists = data.attributeList;
+						// 判断该类别是否拥有属性
+						if (attributeLists.length > 0) {
+							// 获取所有的属性名称，并绑定到$("#attributeNames")中
+							var attributeNames = "";
+							for (var i = 0; i < attributeLists.length; i++) {
+								attributeNames = attributeNames + attributeLists[i].attributeName + ",";
+							}
+							// 截取最后一个逗号
+							attributeNames = attributeNames.substring(0,attributeNames.length - 1);
+							$("#attributeNames").val(attributeNames);
+							var valueLists = data.valueLists;
+							$("#chooseSoldInfo tr").remove();
+							for (var i = 0; i < attributeLists.length; i++) {
+								var tr = "<tr><td>" + attributeLists[i].attributeName + "：</td>";
+								// 获取该属性对象对应的属性值集合
+								var valueList = valueLists[i];
+								var checkbox = "";
+								for (var j = 0; j < valueList.length; j++) {
+									// 获取属性值集合中的每一个属性值对象
+		 							var value = valueList[j];
+		 							checkbox = checkbox + "&nbsp&nbsp&nbsp&nbsp<input type='checkbox' name='" + attributeLists[i].attributeName + "' value='" + value.valueId + "," + value.valueName + "' />&nbsp&nbsp" + value.valueName;
+								}
+								tr = tr + "<td>" + checkbox + "</td></tr>";
+								$("#chooseSoldInfo").append(tr);
+							}
+						} else {
+							$("#chooseSoldInfo tr").remove();
+							var tr = "<tr><td style='color: red;'>该类别商品没有销售属性！请直接添加销售信息</td></tr>";
+							$("#chooseSoldInfo").append(tr);
+							addSKU();
+						}
+					}
+				});	
+			}
+			
+			/* 根据选中的属性、属性值自动生成SKU列表  */
+			function addSKU() {
+				$("#sku th").remove();
+				$("#sku tr").remove();
+				// 获取所有的属性名称
+				var attributeNames = $("#attributeNames").val();
+				// 根据逗号分隔字符串，获得一个字符串数组
+				var attributeName = attributeNames.split(",");
+				var valueLists = new Array();
+				var index = 0;
+				var th = "<tr>";
+				for (var i = 0; i < attributeName.length; i++) {
+					// 获取该属性所有的属性值
+					var valueList = document.getElementsByName(attributeName[i]);
+					// 创建一个数组放所有选中的属性值
+					var checkedvalueList = [];
+					for (value in valueList) {
+	 					if (valueList[value].checked) {
+	 						checkedvalueList.push(valueList[value].value);
+	 					}
+	 				}
+					if (checkedvalueList.length > 0) {
+						valueLists[index] = checkedvalueList;
+						index++;
+						th = th + "<th>" + attributeName[i] + "</th>";
+					}
+				}
+				if (valueLists.length <= 2) {
+					if (valueLists.length != 0) {
+						th = th + "<th>*价格</th><th>*数量</th><th>积分</th><th>折扣</th></tr>";
+						$("#sku th").remove();
+						$("#sku tr").remove();
+						$("#sku").append(th);
+						if (valueLists.length == 1) {
+							var valueList = valueLists[0];
+							for (var i = 0; i < valueList.length; i++) {
+								var value = valueList[i];
+								// 根据逗号分隔字符串，获得一个字符串数组，包含valueId和valueName
+								var valueIdAndValueName = value.split(",");
+								var tr = "<tr>" + 
+									"<td style='width: 50px;'><input type='hidden' name='value' value='" + valueIdAndValueName[0] + "'/>" + valueIdAndValueName[1] + "</td>" +
+									"<td><input type='text' name='price' class='price' autocomplete='off' /></td>" +
+									"<td><input type='text' name='store' class='store' value='0' autocomplete='off'/></td>" +
+									"<td><input type='text' name='point' class='point' value='0' autocomplete='off'/></td>" +
+									"<td><input type='text' name='discount' class='discount' value='1' autocomplete='off' /></td>" +
+									"</tr>";
+								$("#sku").append(tr);
+							}
+						} else {
+							var valueList1 = valueLists[0];
+							var valueList2 = valueLists[1];
+							for (var i = 0; i < valueList1.length; i++) {
+								var value1 = valueList1[i];
+								var valueIdAndValueName1 = value1.split(",");
+								for (var j = 0; j < valueList2.length; j++) {
+									var value2 = valueList2[j];
+									var valueIdAndValueName2 = value2.split(",");
+									var tr = "<tr>" + 
+										"<td style='width: 50px;'><input type='hidden' name='value' value='" + valueIdAndValueName1[0] + "'/>" + valueIdAndValueName1[1] + "</td>" +
+										"<td style='width: 50px;'><input type='hidden' name='value' value='" + valueIdAndValueName2[0] + "' />" + valueIdAndValueName2[1] + "</td>" +
+										"<td><input type='text' name='price' class='price' autocomplete='off' /></td>" +
+										"<td><input type='text' name='store' class='store' value='0' autocomplete='off'/></td>" +
+										"<td><input type='text' name='point' class='point' value='0' autocomplete='off'/></td>" +
+										"<td><input type='text' name='discount' class='discount' value='1' autocomplete='off' /></td>" +
+										"</tr>";
+									$("#sku").append(tr);
+								}
+							}
+						}
+						var tr = "<tr><td colspan='2'></td>" + 
+							"<td><label class='error' for='price' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='store' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='point' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='discount' style='color: red;'></label></td>" + 
+							"</tr>";
+						$("#sku").append(tr);
+					} else {
+						$("#sku th").remove();
+						$("#sku tr").remove();
+						var head = "<th>*价格</th><th>*数量</th><th>积分</th><th>折扣</th></tr>";
+						var tr = "<tr>" + 
+							"<td><input type='text' name='price' class='price' autocomplete='off' /></td>" +
+							"<td><input type='text' name='store' class='store' value='0' autocomplete='off'/></td>" +
+							"<td><input type='text' name='point' class='point' value='0' autocomplete='off'/></td>" +
+							"<td><input type='text' name='discount' class='discount' value='1' autocomplete='off' /></td>" +
+							"</tr>";
+						var error = "<tr>" + 
+							"<td><label class='error' for='price' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='store' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='point' style='color: red;'></label></td>" + 
+							"<td><label class='error' for='discount' style='color: red;'></label></td>" + 
+							"</tr>";
+						$("#sku").append(head);
+						$("#sku").append(tr);
+						$("#sku").append(error);
+					}
+				} else {
+					$("#sku th").remove();
+					$("#sku tr").remove();
+					alert("最多添加两个属性作为销售信息!");
+				}
+			}
+			
+			/* validator校验 */
+			$.validator.setDefaults({
+				submitHandler: function() {
+					/* 获取富文本编辑框的HTML内容 */
+					var detail = editor.txt.html();
+					$("#detail").val(detail);
+					var addForm = $("#addForm").serialize();
+					$.ajax({
+						url: "/product/add",
+						method: "post",
+						data: addForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("添加成功！");
+							} else {
+								alert("添加失败！");
+							}
+							// 刷新父页面
+							var url = "/product/index";
+							location.href=url;
+						}
+					});
+				}
+			});
+			
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			// 校验是否含有特殊字符
+    			if(pattern.test(value)){
+			    	return false;
+				// 校验空格
+			    } else if (value.indexOf(" ") != -1) {
+			       return false;
+				// 通过校验
+			    } else {
+			       return true;
+			    }
+			}, "禁止输入特殊字符及空格");
+			// 价格的校验
+			jQuery.validator.addMethod("isPrice", function(value, element) {   
+			    var price = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+			    return this.optional(element) || (price.test(value));
+			}, "请输入合理的价格！");
+			// 库存与积分的校验
+			jQuery.validator.addMethod("isStoreOrPoint", function(value, element) {   
+			    var store = /^([1-9]\d*|[0]{1,1})$/;
+			    return this.optional(element) || (store.test(value));
+			}, "请输入正整数！");
+			// 折扣的校验
+			jQuery.validator.addMethod("isDiscount", function(value, element) {   
+			    var discount = /^(0\.(?!0+$)\d{1,2}|1(\.0{1,2})?)$/;
+			    return this.optional(element) || (discount.test(value));
+			}, "(0,1],两位小数");
+			
+			$(function() {
+				$("#addForm").validate({
+					rules: {
+						productName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/product/remoteValidateProductInfo",
+								type: "get",
+								data: {
+									"productName": function() {
+										var productName = $("#productName").val();
+										return productName;
+									}
+								}
+							}
+						},
+						title: {
+							checkInput: true
+						},
+						price: {
+							required: true,
+							isPrice: true
+						},
+						store: {
+							required: true,
+							isStoreOrPoint: true
+						},
+						point: {
+							required: true,
+							isStoreOrPoint: true
+						},
+						discount: {
+							required: true,
+							isDiscount: true
+						}
+					},
+					messages: {
+						productName: {
+							required: "请填写宝贝名称",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "宝贝名称已被占用"
+						},
+						title: {
+							checkInput: "禁止输入特殊字符及空格"
+						},
+						price: {
+							required: "请填写全部价格",
+							isPrice: "请输入合法的价格"
+						},
+						store: {
+							required: "请填写全部库存",
+							isStoreOrPoint: "请输入正整数"
+						},
+						point: {
+							required: "请填写全部积分",
+							isStoreOrPoint: "请输入正整数"
+						},
+						discount: {
+							required: "请填写全部折扣",
+							isDiscount: "(0,1]取值"
+						}
+					}
+				});
+			});
+			
+			$(function() {
+				addSKU();
+			});	
+				
+			function backList() {
+				location.href="/";
+			}
+		</script>
+	</head>
+	<body background="/static/images/bg02.png" style="background-repeat: no-repeat;background-size: 100% 100%;background-attachment: fixed;">
+		<form role="form" id="addForm" style="width: 800px; margin: 10px auto; background-color: #fff; border-radius: 8px; box-shadow: 10px 10px 5px #888888;">
+			<table style="width: 800px;">
+				<caption>
+					<i class="fa fa-reddit"></i> <strong>添加宝贝</strong>
+				</caption>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table style="border-collapse: separate; border-spacing: 10px; width: 420px;">
+								<tr>
+									<td colspan="2" class="my-caption">
+										<strong>基础信息</strong>
+									</td>
+								</tr>
+								<tr>
+									<td>选择类目：</td>
+									<td>
+										<select id="firstCategory" class="form-control" style="width: 49%; display: inline-block;" onchange="getSecondCategory()">
+											<option th:each="firstCategory:${firstCategoryList}" th:value="${firstCategory.categoryId}" th:text="${firstCategory.categoryName}"></option>
+										</select>
+										<select id="secondCategory" class="form-control" style="width: 49%; display: inline-block;" name="categoryId">
+											<option th:each="secondCategory:${secondCategoryList}" th:value="${secondCategory.categoryId}" th:text="${secondCategory.categoryName}"></option>
+										</select>
+									</td>
+								</tr>
+								<tr><td></td></tr>
+								<tr>
+									<td>宝贝名称：</td>
+									<td>
+										<input type="text" class="form-control" id="productName" name="productName" maxlength="15" autocomplete="off">
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<label class="error" for="productName" style="color: red;" hidden=""></label>
+									</td>
+								</tr>
+								<tr>
+									<td>宝贝标题：</td>
+									<td>
+										<input type="text" class="form-control" id="title" name="title" autocomplete="off" maxlength="50" placeholder="最多允许输入50个汉字">
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<label class="error" for="title" style="color: red;" hidden=""></label>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="file" id="file" name="file" />
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="file" id="file2" name="file2" />
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="hidden" id="mainImgUrl" name="mainImg"/>
+										<img id="mainImg" style="max-width: 400px; max-height: 400px;">
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="hidden" id="subImgUrl" name="subImg"/>
+										<img id="subImg" style="max-width: 100px; max-height: 100px;">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<hr />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table style="border-collapse: separate; border-spacing: 10px; width: 800px;">
+								<tr>
+									<td class="my-caption">
+										<strong>销售信息</strong>&nbsp;最多选择两种属性组合作为宝贝的销售信息，其他请在编辑框中填写！
+									</td>
+								</tr>
+								<tr>
+									<td>
+										第一步：
+										<button type="button" class="btn btn-info" onclick="addAttributeAndValue()">选择商品的销售信息</button>
+										<input type="hidden" id="attributeNames" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<table id="chooseSoldInfo"></table>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										第二步：
+										<button type="button" class="btn btn-info" onclick="addSKU()">添加商品的销售信息</button>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div style="padding: 5px 0;">
+											<table id="sku"></table>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<hr />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table>
+								<tr>
+									<td class="my-caption" style="text-indent: 5px;">
+										<strong>宝贝描述</strong>&nbsp;请在编辑框中认真宝贝详细信息，不恰当的信息可能会导致宝贝下架！
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="myEditor"></div>
+										<input type="hidden" id="detail" name="detail" />
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+						<button type="submit" class="btn btn-lg btn-primary">保存</button>
+   	 					<button type="button" class="btn btn-lg btn-default" onclick="backList()">返回</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>

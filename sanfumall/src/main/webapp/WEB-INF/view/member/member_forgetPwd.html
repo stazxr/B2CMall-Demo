@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+		<meta charset="UTF-8">
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+		<link rel="stylesheet" href="/static/css/main.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/common/layui/layui.js"></script>
+  		<script src="/static/js/jquery-3.3.1.min.js"></script>
+  		<style>
+  			.alert-warning {
+  				border: 1px solid #ffb4a8;
+  				border-radius: 4px;
+  				color: #6C6C6C;
+  				background-color: #fef2f2;
+  				float: right;
+			    min-width: 920px;
+			    height: 40px;
+			    line-height: 40px;
+			    margin: 30px 30px 0 0;
+  			}
+  		</style>
+	</head>
+	<body>
+		<div class="site-nav-bg" style="min-width: 1394px;">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+		        	<i class="layui-icon layui-icon-home"></i>
+		        	<a href="/index">首页</a>
+		      	</p>
+		      	<div class="sn-quick-menu">
+			        <div class="login"><a href="/member/login">登录</a></div>
+			        <div class="sp-cart"><a href="/member/register">注册</a></div>
+      			</div>
+		    </div>
+		</div>
+		<div class="header" style="min-width: 1394px;">
+    		<div class="headerLayout w1200">
+      			<div class="headerCon">
+        			<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png">
+		          		</a>
+        			</h1>
+        			<div class="alert-warning">
+						 为确保您账户的安全及正常使用，依《SanFu规章》相关要求，注册会员账号需绑定邮箱，以便登录以及密码的找回，感谢您的理解及支持！
+					</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="content content-nav-base  login-content">
+    		<div class="main-nav" style="min-width: 1394px;"></div>
+    		<div class="login-bg" style="min-width: 1394px;">
+      			<div class="login-cont w1200">
+        			<div class="form-box" style="height: 420px;">
+          				<form class="layui-form" id="changePwdForm">
+            				<legend style="padding: 30px 0;">找回密码</legend>
+            				<h3 id="my-title">第一步：确认账号</h3>
+            				<hr style="margin: 10px 0 20px 0;" />
+            				<div class="layui-form-item">
+              					<div id="checkAcount">
+              						<div class="layui-inline iphone">
+	                					<div class="layui-input-inline">
+							                 <i class="layui-icon layui-icon-link iphone-icon"></i>
+							                 <input type="text" id="emailValue" lay-verify="required" placeholder="请输入注册时的邮箱" autocomplete="off" class="layui-input">
+	                					</div>
+	              					</div>
+			              			<div class="layui-form-item login-btn">
+						            	<div class="layui-input-block" style="padding: 0;">
+						            		<button class="layui-btn" type="button" lay-submit="" id="checkEmail">确认</button>
+						            	</div>
+		            				</div>
+              					</div>
+              					<div id="resetPwd">
+              						<div class="layui-inline iphone">
+	                					<div class="layui-input-inline">
+							                 <i class="layui-icon layui-icon-password iphone-icon"></i>
+							                 <input type="password" id="password" name="password" lay-verify="required" placeholder="新密码（6-16个字符组成，区分大小写）" autocomplete="off" class="layui-input">
+	                					</div>
+	              					</div>
+	              					<div class="layui-inline iphone">
+	                					<div class="layui-input-inline">
+							                 <i class="layui-icon layui-icon-password iphone-icon"></i>
+							                 <input type="password" id="resurePwd" lay-verify="required" placeholder="请确认新密码" autocomplete="off" class="layui-input">
+	                					</div>
+	              					</div>
+	              					<div class="layui-inline iphone">
+	                					<div class="layui-input-inline">
+							                 <i class="layui-icon layui-icon-link iphone-icon"></i>
+							                 <input type="text" id="email" name="email" class="layui-input" readonly="readonly">
+	                					</div>
+              						</div>
+              						<div class="layui-inline veri-code iphone">
+						                <div class="layui-input-inline">
+						                	<i class="layui-icon layui-icon-vercode iphone-icon"></i>
+						                  	<input id="emailCode" type="text" lay-verify="required" placeholder="请输入邮箱验证码" autocomplete="off" class="layui-input" maxlength="6"/>
+						                  	<input type="button" class="layui-btn" id="getEmailCode" value="获取验证码" /> 
+						                </div>
+					           		</div>
+              					</div>
+              					<div class="layui-form-item login-btn">
+					            	<div class="layui-input-block" style="padding: 0;">
+					            		<button class="layui-btn" type="button" lay-submit="" id="changePwd">确认修改</button>
+					            	</div>
+	            				</div>
+	              			</div>
+          				</form>
+        			</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="footer" style="min-width: 1394px;">
+		    <div class="ng-promise-box">
+		      	<div class="ng-promise w1200">
+		        	<p class="text">
+			          	<a class="icon1" href="#">无理由退换货</a>
+			          	<a class="icon2" href="#">全国免邮</a>
+			          	<a class="icon3" style="margin-right: 0" href="#">100%品质保证</a>
+		        	</p>
+		      	</div>
+		    </div>
+		    <div class="mod_help w1200">                                     
+		      	<p class="coty">SanFu商城版权所有 &copy; 2018-2020</p>
+		    </div>
+		</div>
+	</body>
+	<script>
+		$(function() {
+			$("#resetPwd").hide();
+			$("#changePwd").hide();
+		});
+	
+		layui.config({
+	      	base: '/static/js/util'
+	    }).use(['jquery','form'],function(){
+			var $ = layui.$,form = layui.form;
+			
+			// 第一步：校验账号是否存在
+			$("#checkEmail").click(function() {
+				// 当点击确认按钮后，从数据库查询账号是否存在
+				var email = $("#emailValue").val();
+				$.ajax({
+	                type: "get",
+	                url: "/member/checkEmailIsExist",
+	                data: {"email": email},
+	                dataType:"json",
+	                success:function(data) {
+	                    if(data){
+	                    	$("#email").val(email);
+	                    	$("#my-title").text("第二步：重置密码");
+	                    	$("#checkAcount").hide();
+	                    	$("#resetPwd").show();
+	                    } else {
+	                    	layer.msg("账号不存在！");
+	                    	$("#emailValue").val("");
+	                    }
+	                }
+	            });
+			});
+			
+			
+			// 点击获取验证码后发送邮箱
+			$("#getEmailCode").click(function() {
+	            var button = this;
+ 	            // 禁用按钮，防止多次点击发送多条验证码
+				button.value="正在发送...";
+				$("#emailCode").removeAttr("readonly");
+				$("#getEmailCode").addClass(" layui-btn-disabled");
+		        $("#getEmailCode").attr("disabled","true");
+	            // 异步发送邮箱
+	            $.ajax({
+	                type: "get",
+	                url: "/member/sendEmail",
+	                data: {"email": function() {
+						var email = $("#email").val();
+						return email;
+					}},
+	                dataType:"json",
+	                success:function(data) {
+	                    if(data){
+	                        $("#emailCode").removeAttr("disabled");
+	                        settime(button);
+	                    } else {
+	                    	button.value="获取验证码";
+	                    	layer.msg("发送失败!");
+	                    }
+	                }
+	            }); 
+	        });
+			
+			$("#emailCode").keyup(function() {
+				var emailCode = $("#emailCode").val();
+				if (emailCode.length == 6) {
+					// 异步判断验证码是否正确
+		            $.ajax({
+		                type: "get",
+		                url: "/member/checkEmailCode/" + emailCode,
+		                dataType:"json",
+		                success:function(data) {
+		                    if(data){
+		                    	$("#emailCode").attr("readonly","true");
+		                    	$("#changePwd").show();
+		                    } else {
+		                    	layer.msg("验证码填写错误");
+		                    	$("#emailCode").val("");
+		                    }
+		                }
+		            });
+				}
+			});
+	        
+	        var countdown = 60;
+	        function settime(button) { 
+	        if (countdown == 0) { 
+	        	button.removeAttribute("disabled");
+	        	button.classList.remove("layui-btn-disabled")
+	            button.value="获取验证码"; 
+	            countdown = 60; 
+	            return;
+	        } else { 
+	        	button.value="重新发送(" + countdown + ")"; 
+	            countdown--; 
+	        } 
+	        setTimeout(function() { 
+	            settime(button) }
+	            ,1000) 
+	        }
+			
+			// 点击确认修改后进行验证操作
+			$("#changePwd").click(function() {
+	  			var email = $("#email").val();
+	  			var password = $("#password").val();
+	  			var resurePwd = $("#resurePwd").val();
+	  			// 判断密码输入是否合格
+	  			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				if (password.length < 6 || password.length > 16) {
+					layer.msg("密码必须由6-16个字符组成！");
+					$("#password").val("");
+					return false;
+				} else if (pattern.test(password)) {
+					layer.msg("禁止输入特殊字符或空格！");
+					$("#password").val("");
+					return false;
+				} else if (resurePwd != password) {
+					layer.msg("两次输入的密码不一致！");
+					$("#resurePwd").val("");
+					return false;
+				} else {
+					$.ajax({
+						url: "/member/savaNewPwd",
+						method: "post",
+						data: {"email": email,
+							"password": password},
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+								location.href="/member/login";
+							} else {
+								alert("修改失败！");
+								location.href="/member/forgetPwd";
+							}
+						}
+					});
+				}
+			});
+	    });
+	</script>
+</html>

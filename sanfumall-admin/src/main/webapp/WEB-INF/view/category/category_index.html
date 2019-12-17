@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>类别列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增类别模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-yelp'></span> 添加类别";
+				var url="/category/add";
+				var width="550px";
+				var height="380px";
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改类别模态框  */
+			function openUpdateModal(categoryId) {
+				var title="<span class='fa fa-wrench'></span> 修改类别信息";
+				var url="/category/update/" + categoryId;
+				var width="550px";
+				var height="380px";
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开类别详情模态框  */
+			function openDetailModal(categoryId) {
+				var title="<span class='fa fa-user-secret'></span> 类别详情";
+				var url="/category/detail/" + categoryId;
+				var width="400px";
+				var height="280px";	
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getcategoryListByLike() {
+				var keyword = $("#search").val();
+				var url = "/category/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 修改类别状态  */
+			function changeStatus(categoryId, categoryName, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + categoryName + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + categoryName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/category/changeStatus/" + categoryId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "已被启用！");
+								} else {
+									alert(categoryName + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "启用失败！");
+								} else {
+									alert(categoryName + "禁用失败！");
+								}
+							}
+							var url = "/category/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新类别列表页面 */
+			function refreshPage() {
+				var url = "/category/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件  */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据类别名称、状态查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getcategoryListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		添加类别
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>类别信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>类别ID</th>
+	                  <th>类别名称</th>
+	                  <th>上级类别</th>
+	                  <th>排序字段</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="category:${page.list}">
+	                  	<td th:text="${category.categoryId}"></td>
+	                  	<td th:text="${category.categoryName}"></td>
+	                  	<td th:if="${category.parent}==null">null</td>
+	                  	<td th:unless="${category.parent}==null" th:text="${category.parent.categoryName}"></td>
+	                  	<td th:text="${category.sortOrder}"></td>
+	                  	<td th:if="${category.status.statusCode} eq 'ENABLE'" th:text="${category.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${category.status.statusCode} eq 'ENABLE'" th:text="${category.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${category.categoryId})|">详情</a>
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${category.categoryId})|">修改</a>
+	                			<a class="btn btn-success btn-sm" th:if="${category.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${category.categoryId},'${category.categoryName}','ENABLE')|">启用</a>
+	                			<a class="btn btn-danger btn-sm" th:unless="${category.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${category.categoryId},'${category.categoryName}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="3" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/category/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/category/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/category/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/category/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

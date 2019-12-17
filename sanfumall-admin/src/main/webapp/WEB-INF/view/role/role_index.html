@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>角色列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增角色模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-user-plus'></span> 新增角色信息";
+				var url="/role/add";
+				var width="450px";
+				var height="280px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+
+			/* 打开角色详情模态框  */
+			function openDetailModal(roleId) {
+				var title="<span class='fa fa-user-secret'></span> 角色详情";
+				var url="/role/detail/" + roleId;
+				var width="400px";
+				var height="300px";	
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改角色模态框  */
+			function openUpdateModal(roleId) {
+				var title="<span class='fa fa-wrench'></span> 修改角色信息";
+				var url="/role/update/" + roleId;
+				var width="450px";
+				var height="280px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开角色授权模态框  */
+			function openAuthcModal(roleId) {
+				var title="<span class='fa fa-yelp'></span> 角色授权";
+				var url="/role/authc/" + roleId;
+				var width="280px";
+				var height="450px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getRoleListByLike() {
+				var keyword = $("#search").val();
+				var url = "/role/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 修改角色状态  */
+			function changeStatus(roleId, roleName, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + roleName + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + roleName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/role/changeStatus/" + roleId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(roleName + "已被启用！");
+								} else {
+									alert(roleName + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(roleName + "启用失败！");
+								} else {
+									alert(roleName + "禁用失败！");
+								}
+							}
+							var url = "/role/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新角色列表页面 */
+			function refreshPage() {
+				var url = "/role/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件 */
+			$(function() {
+			    $( document ).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据名称、编号、状态查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getRoleListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		新增角色
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>角色信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>角色ID</th>
+	                  <th>角色名称</th>
+	                  <th>角色编号</th>
+	                  <th>角色状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="role:${page.list}">
+	                  	<td th:text="${role.roleId}"></td>
+	                  	<td th:text="${role.roleName}"></td>
+	                  	<td th:text="${role.roleCode}"></td>
+	                  	<td th:if="${role.status.statusCode} eq 'ENABLE'" th:text="${role.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${role.status.statusCode} eq 'ENABLE'" th:text="${role.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${role.roleId})|">详情</a>
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${role.roleId})|">修改</a>
+	                			<a class="btn btn-warning btn-sm" th:href="|javascript:openAuthcModal(${role.roleId})|">授权</a>
+	                			<a class="btn btn-success btn-sm" th:if="${role.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${role.roleId},'${role.roleName}','ENABLE')|">启用</a>
+	                			<a class="btn btn-danger btn-sm" th:unless="${role.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${role.roleId},'${role.roleName}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/role/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/role/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/role/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/role/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

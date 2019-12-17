@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+	  	<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+	  	<meta charset="UTF-8">
+	  	<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+	  	<link rel="stylesheet" href="/static/css/bootstrap.css">
+	  	<link rel="stylesheet" href="/static/css/font-awesome.min.css">
+	  	<link rel="stylesheet" href="/static/css/main.css">
+	  	<link rel="stylesheet" href="/static/css/my.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/js/jquery-3.3.1.min.js"></script>
+		<script src="/static/js/bootstrap.js"></script>
+  		<script src="/static/common/layui/layui.js"></script>
+  		<script>
+	  		/* 打开添加收货地址模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-plus'></span> 添加收货地址";
+				var url="/address/add";
+				var width="500px";
+				var height="480px";
+				openModal(title, url, width, height);
+			}
+	  		
+			/* 打开修改收货地址模态框  */
+			function openUpdateModal(addressId) {
+				var title="<span class='fa fa-plus'></span> 修改收货地址";
+				var url="/address/update/" + addressId;
+				var width="500px";
+				var height="480px";
+				openModal(title, url, width, height);
+			}
+	  		
+			/* 打开详情模态框  */
+			function openDetailModal(addressId) {
+				var title="<span class='fa fa-plus'></span> 详情";
+				var url="/address/detail/" + addressId;
+				var width="400px";
+				var height="280px";
+				openModal(title, url, width, height);
+			}
+	  		
+			/* 设置默认收货地址  */
+			function setDefaultAddress(addressId) {
+				var flag = confirm("你确定要把该地址设为默认地址吗?");
+				if (flag) {
+					$.ajax({
+						url: "/address/setDefaultAddress/" + addressId,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								alert("设置成功");
+							} else {
+								alert("设置失败");
+							}
+							location.href="/address/index";
+						} 
+					});
+				}
+			}
+			
+			// 删除收货地址
+			function deleteAddress(addressId) {
+				var flag = confirm("你确定删除该地址吗?");
+				if (flag) {
+					$.ajax({
+						url: "/address/deleteAddress/" + addressId,
+						type: "delete",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								alert("删除成功");
+							} else {
+								alert("删除失败");
+							}
+							location.href="/address/index";
+						} 
+					});
+				}
+			}
+	  		
+	  		// 打开模态框
+			function openModal(title, url, width, height) {
+				$("#myModalContent").css({
+					"width": width
+				});
+				$("#myModalTitle").html(title);
+				// 设定弹框需要展示的页面地址
+				var iframe = "<iframe width='100%' height='" + height + "' onscroll='true' src='" + url + "' style='border: 0px;'></iframe>";
+				$("#myModalBody").html(iframe);
+				$("#myModal").modal({
+					keyboard: false,
+					backdrop: 'static'
+				});
+			}
+			
+			// 关闭模态框
+			function closeModal(){
+		    	$('#myModal').modal('hide');
+		    }
+  		</script>
+	</head>
+	<body>
+		<div class="site-nav-bg">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+			        <i class="layui-icon layui-icon-home"></i>
+			        <a href="/">首页</a>
+		      	</p>
+		    </div>
+		</div>
+		<div class="header">
+		    <div class="headerLayout w1200">
+		      	<div class="headerCon">
+		        	<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png" style="margin-top: 25px;">
+		          		</a>
+        			</h1>
+		    	</div>
+		  	</div>
+		</div>
+	  	<div class="content content-nav-base shopcart-content">
+	    	<div class="main-nav"></div>
+	    	<div class="w1200">
+	    		<nav class="navbar navbar-default">
+					<div class="container-fluid">
+				    <div>
+				        <form class="navbar-form navbar-right">
+				            <button type="submit" class="btn btn-default" onclick="getRoleListByLike()"><i class="fa fa-search"></i></button>
+				            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+				            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+				        		添加收货地址
+				        	</button>
+				        </form>
+				    </div>
+					</div>
+				</nav>
+	    		<div class="table-responsive">
+		            <table class="table table-hover" id="mytable">
+		              	<thead>
+		                	<tr>
+			                  <th>收货人姓名</th>
+			                  <th>联系电话</th>
+			                  <th>地址</th>
+			                  <th>操作</th>
+		                	</tr>
+		              	</thead>
+		              	<tbody>
+		                	<tr th:each="address:${addressList}">
+			                  	<td th:text="${address.consigneeName}"></td>
+			                  	<td th:text="${address.consigneeCellphone}"></td>
+			                  	<td th:text="|${address.consigneeAddress} ${address.consigneeDetailAddress}|"></td>
+		                		<td style="min-width: 206px;">
+		                			<div class="btn-group">
+		                				<a class="btn btn-primary btn-sm" th:if="${address.sortOrder} == 1">默认</a>
+		                				<a class="btn btn-primary btn-sm" th:unless="${address.sortOrder} == 1" th:href="|javascript:setDefaultAddress(${address.addressId})|">设为默认</a>
+		  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${address.addressId})|">详情</a>
+			                			<a class="btn btn-warning btn-sm" th:href="|javascript:openUpdateModal(${address.addressId})|">修改</a>
+			                			<a class="btn btn-danger btn-sm" th:href="|javascript:deleteAddress(${address.addressId})|">删除</a>
+		  							</div>
+		                		</td>
+		                	</tr>
+		              	</tbody>
+					</table>
+		    	</div>
+	    	</div>
+	    </div>
+	    <!-- modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true" style="margin:0 auto;">
+			<div class="modal-dialog">
+				<div class="modal-content" id="myModalContent">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalTitle"></h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					</div>
+					<div class="modal-body" id="myModalBody"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

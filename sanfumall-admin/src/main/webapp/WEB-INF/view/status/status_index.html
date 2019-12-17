@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>状态列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 模糊查询获取分页列表  */
+			function getStatusListByLike() {
+				var keyword = $("#search").val();
+				var url = "/status/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+			
+			/* 刷新状态列表页面 */
+			function refreshPage() {
+				var url = "/status/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件 */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据ID、编号、名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getStatusListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>状态信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>状态ID</th>
+	                  <th>上级状态ID</th>
+	                  <th>状态名称</th>
+	                  <th>状态编号</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="status:${page.list}">
+	                  	<td th:text="${status.statusId}"></td>
+	                  	<td th:if="${status.parent}==null">null</td>
+	                  	<td th:unless="${status.parent}==null" th:text="${status.parent.statusId}"></td>
+	                  	<td th:text="${status.statusName}"></td>
+	                  	<td th:text="${status.statusCode}"></td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="2" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/status/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/status/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/status/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/status/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

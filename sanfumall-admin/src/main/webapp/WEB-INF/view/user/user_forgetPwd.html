@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>修改密码</title>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符及空格的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+				var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				if (pattern.test(value)) {
+			     	return false;
+			    } else if(value.indexOf(" ") != -1) {
+			        return false;
+			   	} else {
+			    	return true;
+			    }
+			}, "禁止输入特殊字符或空格！");
+			
+			// 拦截submit事件,执行自定义的动作
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var password = $("#password").val();
+					$.ajax({
+						url: "/user/savaNewPwd",
+						method: "put",
+						data: {"password": password},
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("密码修改成功，请保管好密码！");
+								location.href="/user/login";
+							} else {
+								alert("密码修改失败！请重新执行操作！");
+								location.href="/user/forgetPwd";
+							}
+						}
+					})
+				}
+			});
+			
+			/* validate校验 */
+			$(function() {
+				$("#forgetPwdForm").validate({
+					rules: {
+						password: {
+							required: true,
+							checkInput: true,
+							minlength: 8,
+							maxlength: 20
+						},
+						checkedPwd: {
+							required: true,
+							equalTo: "#password"
+						}
+					},
+					messages: {
+						password: {
+							required: "密码不能为空",
+							checkInput: "禁止输入特殊字符或空格!",
+							minlength: "长度不能小于8个长度",
+							maxlength: "长度不能大于20个长度"
+						},
+						checkedPwd: {
+							required: "密码不能为空",
+							equalTo: "两次输入的密码不相等!"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			/* 校验登录名是否存在 */
+			function checkLoginName() {
+				var loginName = $("#loginName").val();
+				$.ajax({
+					url: "/user/checkLoginNameWhenForgetPwd",
+					type: "get",
+					data: {"loginName": loginName},
+					dateType: "json",
+					success: function(data) {
+						if (data != "null") {
+							if (data != "0") {
+								alert("正在尝试发送验证码，请等待30秒！");
+								var email = data;
+								sendEmail(email);
+							} else {
+								alert("您的邮箱格式不正确！");
+							}
+						} else {
+							alert("登录名不存在！");
+							$("#loginName").val("");
+						}
+					}
+				});
+			}
+			
+			/* 发送邮箱验证码  */
+			function sendEmail(email){
+				$.ajax({
+					url: "/user/SendEmail",
+					type: "get",
+					data: {"email": email},
+					dateType: "json",
+					success: function(data) {
+						if (data) {
+							alert("验证码已发送，请填写验证码。");
+							$('#emailCode').removeAttr("disabled");
+						} else {
+							alert("验证码发送失败！请重新尝试，或者联系管理员！ +qq:1027353579");
+						}
+					}
+				});
+			}
+			
+			/* 校验验证码是否正确 */
+			function checkEmailCode() {
+				var emailCode = $("#emailCode").val();
+				$.ajax({
+					url: "/user/checkEmailCode",
+					type: "get",
+					data: {"emailCode": emailCode},
+					dateType: "json",
+					success: function(data) {
+						if (data) {
+							$('#fieldset').removeAttr("disabled");
+						} else {
+							alert("验证码不正确！");
+							$("#emailCode").val("");
+						}
+					}
+				});
+			}
+			
+		</script>
+	</head>
+	<body background="/static/images/bg02.png" style="background-repeat: no-repeat;background-size: 100% 100%;background-attachment: fixed;">
+		<div style="margin: 50px auto;width: 400px;min-width: 400px;">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0;margin: 50px auto;">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="forgetPwdForm">
+								<div class="form-group" id="loginNameForm">
+									<label class="col-xs-4 control-label" for="loginName">登录名</label>
+									<div class="col-xs-7">
+										<input type="hidden" id="userId" name="userId">
+										<input type="text" class="form-control" id="loginName" name="loginName" placeholder="请输入登录名" autocomplete="off" onblur="checkLoginName()" />
+									</div>
+								</div>
+								<div class="form-group" id="emailCodeForm">
+									<label class="col-xs-4 control-label" for="emailCode">邮箱验证码</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="emailCode" name="emailCode" placeholder="请输入邮箱验证码" autocomplete="off" onblur="checkEmailCode()" disabled/>
+									</div>
+								</div>
+								<fieldset id="fieldset" disabled>
+									<div class="form-group">
+										<label class="col-xs-4 control-label" for="password">登录密码</label>
+										<div class="col-xs-7">
+											<input type="password" class="form-control" id="password" name="password" placeholder="请输入新密码" autocomplete="off" />
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-xs-4 control-label" for="checkedPwd">确认登录密码</label>
+										<div class="col-xs-7">
+											<input type="password" class="form-control" id="checkedPwd" name="checkedPwd" placeholder="请重新输入密码" autocomplete="off" />
+										</div>
+									</div>
+								</fieldset>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

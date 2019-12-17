@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<meta charset="UTF-8">
+		<title th:text="${product.productName}">商品详情</title>
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			$(function() {
+				// 回显宝贝详细信息
+				var detail = $("#detailHtml").val();
+				$("#detail").html(detail);
+			});
+		</script>
+	</head>
+	<body background="/static/images/bg02.png" style="background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed; font-family: 仿宋;">
+		<div style="width: 800px; margin: 10px auto; background-color: #fff;">
+		   <!-- 标题 -->
+		   <div class="page-header">
+			    <h2 style="margin-left: 5px; margin-top: 5px;">宝贝详情
+			        <small th:text="${product.productName}"></small>
+			    </h2>
+			</div>
+			<div style="position: relative; height: 450px;">
+				<div style="position: absolute;">
+					<img src="" alt="" th:src="${product.mainImg}" style="width: 400px; height: 400px; margin: 10px 0 0 5px; border: 1px solid #eaeaea;">
+				</div>
+				<div style="width: 380px; position: absolute; left: 410px;">
+					<div style="width: 100px; height: 100px; position: absolute; top: 10px; left: 10px;">
+						<img src="" th:src="${product.subImg}" style="width: 100px; height: 100px;">
+					</div>
+					<table style="border-collapse: separate; border-spacing: 10px; position: absolute; top: 110px;">
+						<tr>
+					 		<td colspan="2" th:text="${product.title}" style="font: 16px bold 微软雅黑;"></td>
+					 	</tr>
+					 	<tr>
+					 		<td>宝贝Id:</td>
+					 		<td th:text="${product.productId}"></td>
+					 	</tr>
+					 	<tr>
+					 		<td>宝贝编号:</td>
+					 		<td th:text="${product.productNo}"></td>
+					 	</tr>
+					 	<tr>
+					 		<td>宝贝名称:</td>
+					 		<td th:text="${product.productName}"></td>
+					 	</tr>
+					 	<tr>
+					 		<td>宝贝类型:</td>
+					 		<td th:text="|${product.category.parent.categoryName}>>${product.category.categoryName}|"></td>
+						</tr>
+						<tr>
+					 		<td>排序字段:</td>
+					 		<td th:text="${product.sortOrder}"></td>
+					 	</tr>
+					</table>	
+				</div>
+			</div>
+			<hr />
+			<div>
+				<h3>销售信息</h3>
+				<table style="border-collapse: separate; border-spacing: 10px; width: 600px;">
+					<tr>
+						<th th:each="value:${product.skuList[0].valueList}" th:text="${value.attribute.attributeName}"></th>
+						<th>价格</th>
+						<th>库存</th>
+						<th>积分</th>
+						<th>折扣</th>
+					</tr>
+					<tr th:each="sku:${product.skuList}">
+						<td th:each="value:${sku.valueList}" th:text="${value.valueName}"></td>
+						<td th:text="${sku.price}"></td>
+						<td th:text="${sku.store}"></td>
+						<td th:text="${sku.point}"></td>
+						<td th:text="${sku.discount}"></td>
+					</tr>
+				</table>
+			</div>
+			<hr />
+			<h3>详细信息</h3>
+			<div id="detail">
+				<input type="hidden" id="detailHtml" th:value="${product.detail}" />	 	
+			</div>
+		</div>
+	</body>
+</html>

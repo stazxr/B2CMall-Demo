@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>类别详情页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/category/index";
+				parent.openFrame(url);
+			}
+		</script>		
+	</head>
+	<body>
+		<table class="table table-condensed">
+			<caption th:text="|${category.categoryName}@详情页|" style="font: 26px 仿宋;text-align: center;margin: 0 auto;"></caption>
+			<tr>
+				<td align="right" style="width: 40%;">类别ID：</td>
+				<td align="center" th:text="${category.categoryId}"></td>
+			</tr>
+			<tr>
+				<td align="right">类别名称：</td>
+				<td align="center" th:if="${category.parent} == null" th:text="${category.categoryName}"></td>
+				<td align="center" th:unless="${category.parent} == null" th:text="|${category.parent.categoryName} >> ${category.categoryName}|"></td>
+			</tr>
+			<tr>
+				<td align="right">排序字段：</td>
+				<td align="center" th:text="${category.sortOrder}"></td>
+			</tr>
+			<tr>
+				<td align="right">状态：</td>
+				<td align="center" th:if="${category.status.statusCode} eq 'ENABLE'" th:text="${category.status.statusName}" style="color: green;"></td>
+				<td align="center" th:unless="${category.status.statusCode} eq 'ENABLE'" th:text="${category.status.statusName}" style="color: red;"></td>
+			</tr>
+			<tr th:if="${secondCategoryList} != null">
+				<td align="right" style="line-height: 26px;">二级类别：</td>
+				<td align="center">
+					<span th:if="${secondCategoryList.size()} != 0">
+						<select style="width: 60%; border: 1px solid #ccc; border-radius: 4px; height: 26px;">
+							<option th:each="category:${secondCategoryList}" th:value="${category.categoryId}" th:text="${category.categoryName}" th:if="${category.status.statusCode} == 'ENABLE'" style="color: green;"></option>
+							<option th:each="category:${secondCategoryList}" th:value="${category.categoryId}" th:text="${category.categoryName}" th:unless="${category.status.statusCode} == 'ENABLE'" style="color: red;"></option>
+						</select>
+					</span>
+					<span th:unless="${secondCategoryList.size()} != 0" style="color: orange;">
+						该类别下没有二级类别
+					</span>
+				</td>
+			</tr>
+			<tr th:unless="${secondCategoryList} != null" hidden=""></tr>
+			<tr>
+				<td align="right" colspan="2">
+					<button type="button" class="btn btn-sm" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

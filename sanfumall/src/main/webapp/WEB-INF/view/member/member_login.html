@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+		<meta charset="UTF-8">
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+		<link rel="stylesheet" href="/static/css/main.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/common/layui/layui.js"></script>
+  		<style>
+  			.alert-warning {
+  				border: 1px solid #ffb4a8;
+  				border-radius: 4px;
+  				color: #6C6C6C;
+  				background-color: #fef2f2;
+  				float: right;
+			    min-width: 920px;
+			    height: 40px;
+			    line-height: 40px;
+			    margin: 30px 30px 0 0;
+  			}
+  		</style>
+	</head>
+	<body>
+		<div class="site-nav-bg" style="min-width: 1394px;">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+		        	<i class="layui-icon layui-icon-home"></i>
+		        	<a href="/index">首页</a>
+		      	</p>
+		      	<div class="sn-quick-menu">
+			        <div class="sp-cart" style="margin-right: 22px;"><a href="/member/forgetPwd">找回密码</a></div>
+			        <div class="login"><a href="/member/register">注册账号</a></div>
+      			</div>
+		    </div>
+		</div>
+		<div class="header" style="min-width: 1394px;">
+    		<div class="headerLayout w1200">
+      			<div class="headerCon">
+        			<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png">
+		          		</a>
+        			</h1>
+        			<div class="alert-warning">
+						 为确保您账户的安全及正常使用，依《SanFu规章》相关要求，会员账号需绑定邮箱，以便登录以及密码的找回，感谢您的理解及支持！
+					</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="content content-nav-base  login-content">
+    		<div class="main-nav" style="min-width: 1394px;"></div>
+    		<div class="login-bg" style="min-width: 1394px;">
+      			<div class="login-cont w1200">
+        			<div class="form-box">
+          				<form class="layui-form" action="/member/login" method="post">
+            				<legend style="padding: 30px 0;">密码登录</legend>
+            				<div class="layui-form-item">
+              					<div class="layui-inline iphone">
+                					<div class="layui-input-inline">
+						                 <i class="layui-icon layui-icon-username iphone-icon"></i>
+						                 <input type="text" id="username" name="username" lay-verify="required" placeholder="请输入注册时的邮箱" autocomplete="off" class="layui-input">
+                					</div>
+              					</div>
+              					<div class="layui-inline iphone">
+                					<div class="layui-input-inline">
+						                 <i class="layui-icon layui-icon-password iphone-icon"></i>
+						                 <input type="password" name="password" id="password" lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+                					</div>
+              					</div>
+	              				<div class="layui-inline veri-code iphone">
+	                				<div class="layui-input-inline">
+	                					<i class="layui-icon layui-icon-vercode iphone-icon"></i>
+					                  	<input type="text" name="numCode" lay-verify="required" placeholder="请输入验证码" autocomplete="off" class="layui-input" maxlength="4">
+					                  	<img class="layui-btn" src="/code/numCode" onClick="this.src='/code/numCode?random=' + Math.random();" style="padding: 0; width: 120px;" />
+	                				</div>
+	              				</div>
+            				</div>
+            				<div class="layui-form-item login-btn">
+				            	<div class="layui-input-block" style="padding: 0;">
+				            		<button class="layui-btn" lay-submit="" type="submit">登录</button>
+				            	</div>
+            				</div>
+          				</form>
+        			</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="footer" style="min-width: 1394px;">
+		    <div class="ng-promise-box">
+		      	<div class="ng-promise w1200">
+		        	<p class="text">
+			          	<a class="icon1" href="#">无理由退换货</a>
+			          	<a class="icon2" href="#">全国免邮</a>
+			          	<a class="icon3" style="margin-right: 0" href="#">100%品质保证</a>
+		        	</p>
+		      	</div>
+		    </div>
+		    <div class="mod_help w1200">                                     
+		      	<p class="coty">SanFu商城版权所有 &copy; 2018-2020</p>
+		    </div>
+		</div>
+	</body>
+	<script>
+		layui.config({
+	      	base: '/static/js/util'
+	    }).use(['jquery','form'],function(){
+			var $ = layui.$,form = layui.form;
+			$("#username").blur(function() {
+				var email = $("#username").val();
+				if(!(/^[0-9A-Za-z][\.-_0-9A-Za-z]*@[0-9A-Za-z]+(\.[0-9A-Za-z]+)+$/).test(email)){
+	            	layer.msg("请输入正确的邮箱地址!");
+	            	$("#username").val("");
+	              	return false;
+		        }
+			});
+	    });
+	</script>
+</html>

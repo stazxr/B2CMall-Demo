@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>角色详情页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/role/index";
+				parent.openFrame(url);
+			}
+		</script>		
+	</head>
+	<body>
+		<table class="table table-condensed">
+			<caption th:text="|${role.roleName}@详情页|" style="font: 18px 仿宋; text-align: center; margin: 0 auto;"></caption>
+			<tr>
+				<td align="right" style="width: 35%;">ID：</td>
+				<td align="center" th:text="${role.roleId}"></td>
+			</tr>
+			<tr>
+				<td align="right">编码：</td>
+				<td align="center" th:text="${role.roleCode}"></td>
+			</tr>
+			<tr>
+				<td align="right">名称：</td>
+				<td align="center" th:text="${role.roleName}"></td>
+			</tr>
+			<tr>
+				<td align="right">状态：</td>
+				<td align="center" th:if="${role.status.statusCode} eq 'ENABLE'" th:text="${role.status.statusName}" style="color: green;"></td>
+				<td align="center" th:unless="${role.status.statusCode} eq 'ENABLE'" th:text="${role.status.statusName}" style="color: red;"></td>
+			</tr>
+			<tr>
+				<td align="right">管理员个数：</td>
+				<td align="center" th:text="${role.userList.size()}"></td>
+			</tr>
+			<tr>
+				<td align="right" style="line-height: 26px;">管理员列表：</td>
+				<td align="center">
+					<span th:if="${role.userList.size()} != 0">
+						<select style="width: 60%; border: 1px solid #ccc; border-radius: 4px; height: 26px;">
+							<option th:each="user:${role.userList}" th:text="${user.username}" th:if="${user.status.statusCode} == 'ENABLE'" style="color: green;"></option>
+							<option th:each="user:${role.userList}" th:text="${user.username}" th:unless="${user.status.statusCode} == 'ENABLE'" style="color: red;"></option>
+						</select>
+					</span>
+					<span th:unless="${role.userList.size()} != 0" style="color: orange;">
+						没有用户拥有该权限
+					</span>
+				</td>
+			</tr>
+			<tr>
+				<td align="right" colspan="2"><button type="button" class="btn" onclick="backList()"><i class="fa fa-reply"></i> 返回</button></td>
+			</tr>
+		</table>
+	</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>角色授权页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/zTree/css/zTreeStyle.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/zTree/js/jquery.ztree.core.min.js"></script>
+		<script src="/static/common/zTree/js/jquery.ztree.excheck.min.js"></script>
+		<script>
+			$(function(){
+				var roleId = $("#roleId").val();
+				// 通过异步获取页面菜单数据
+				$.ajax({
+					url: "/menu/authc/" + roleId,
+					type: "get",
+					datatype: "json",
+					success: function(data){
+						$.fn.zTree.init($("#menuTree"), setting, data);		
+					}
+				});
+			});
+
+			// 设置ztree相关信息
+			var setting = {
+				check: {
+					enable: true
+				},
+				data: {
+					simpleData: {
+						enable: true
+					}
+				},
+				callback: {
+					beforeCheck: beforeCheck		
+				}
+			};			
+			
+			var className = "dark";
+			/* 节点docheck为false,禁止随意勾选  */
+			function beforeCheck(treeId, treeNode) {
+				className = (className === "dark" ? "":"dark");
+				return (treeNode.doCheck !== false);
+			}
+			
+			/* 获取所有选中节点的ID */
+			function getCheckedNodeId(){
+				var zTree = $.fn.zTree.getZTreeObj("menuTree");
+				var nodes = zTree.getCheckedNodes(true);
+				var ids = "";
+				for (var i = 0; i < nodes.length; i++) {
+					var id = nodes[i].id;
+					ids = ids + "-" + id;
+				}
+				// 截取掉前面的累赘
+				ids = ids.substring(1);
+				return ids;
+			}
+			
+			/* 对角色进行授权操作  */
+			function roleAuthc() {
+				var roleId = $("#roleId").val();
+				var ids = getCheckedNodeId();
+				$.ajax({
+					url: "/role/authc/" + roleId + "/" + ids,
+					type: "post",
+					datatype: "json",
+					success: function(data){
+						if (data) {
+							alert("授权成功");
+						} else {
+							alert("授权失败");
+						}
+						// 关闭模态框
+						parent.closeModal();
+						// 刷新父页面
+						var url = "/role/index";
+						parent.openFrame(url);
+					}					
+				});
+			}
+			
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/role/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<input type="hidden" id="roleId" name="roleId" th:value="${roleId}">
+		<div class="content_wrap">
+			<div class="zmenuTreeBackground left">
+				<ul id="menuTree" class="ztree"></ul>
+			</div>
+		</div>
+		<div>
+			<button type="submit" class="btn btn-primary" onclick="roleAuthc()"><i class="fa fa-save"></i> 授权</button> 
+			<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+		</div>
+	</body>
+</html>

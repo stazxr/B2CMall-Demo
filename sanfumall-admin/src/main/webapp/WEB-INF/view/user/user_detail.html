@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>Insert title here</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/user/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<table class="table table-condensed">
+			<caption th:text="|${user.username}@详情页|" style="font: 22px 仿宋;text-align: center;margin: 0 auto;"></caption>
+			<tr>
+				<td align="right" style="width: 40%;">ID：</td>
+				<td align="center" th:text="${user.userId}"></td>
+			</tr>
+			<tr>
+				<td align="right">编码：</td>
+				<td align="center" th:text="${user.userNo}"></td>
+			</tr>
+			<tr>
+				<td align="right">姓名：</td>
+				<td align="center" th:text="${user.username}"></td>
+			</tr>
+			<tr>
+				<td align="right">性别：</td>
+				<td align="center" th:if="${user.gender} eq 'M'" style="color: green;">男</td>
+				<td align="center" th:unless="${user.gender} eq 'M'" style="color: red;">女</td>
+			</tr>
+			<tr>
+				<td align="right">角色：</td>
+				<td align="center" th:text="${user.role.roleName}"></td>
+			</tr>
+			<tr>
+				<td align="right">身份证号：</td>
+				<td align="center" th:text="${user.idCard}"></td>
+			</tr>
+			<tr>
+				<td align="right">出生年月：</td>
+				<td align="center" th:text="${birthday}"></td>
+			</tr>
+			<tr>
+				<td align="right">联系电话：</td>
+				<td align="center" th:text="${user.cellphone}"></td>
+			</tr>
+			<tr>
+				<td align="right">电子邮件：</td>
+				<td align="center" th:text="${user.email}"></td>
+			</tr>
+			<tr>
+				<td align="right">状态：</td>
+				<td align="center" th:if="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: green;"></td>
+				<td align="center" th:unless="${user.status.statusCode} eq 'ENABLE'" th:text="${user.status.statusName}" style="color: red;"></td>
+			</tr>
+			<tr>
+				<td align="right" colspan="2">
+					<button type="button" class="btn" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

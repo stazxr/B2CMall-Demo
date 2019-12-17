@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>类别添加页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			var reg = /^([0-9]+)$/;
+    			 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var updateForm = $("#updateForm").serialize();
+					$.ajax({
+						url: "/value/update",
+						method: "put",
+						data: updateForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+							} else {
+								alert("修改失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/value/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			$(function() {
+				$("#updateForm").validate({
+					rules: {
+						valueName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/value/remoteValidateValueInfo",
+								type: "get",
+								data: {
+									"valueId": function() {
+										var valueId = $("#valueId").val();
+										return valueId;
+									},
+									"valueName": function() {
+										var valueName = $("#valueName").val();
+										return valueName;
+									},
+									"attributeId": function() {
+										var attributeId = $("#attributeId").val();
+										return attributeId;
+									}
+								}
+							}
+						}
+					},
+					messages: {
+						valueName: {
+							required: "属性值不能为空",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "同一类别同一属性下的属性值不能重复"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/value/index";
+				parent.openFrame(url);
+			}
+			
+			/* 根据一级类别ID获取二级类别集合,并追加到select[id=secondCategory]中  */
+			function getSecondCategory() {
+				var categoryId = $("#firstCategory").val();
+				$.ajax({
+					url: "/category/getSecondCategoryById/" + categoryId,
+					method: "get",
+					dataType: "json",
+					success: function(data){
+						$("#secondCategory option").remove();
+						for (var i = 0; i < data.length; i++){
+							var secondCategory = data[i];
+							var option = "<option value=" + secondCategory.categoryId + ">" + secondCategory.categoryName + "</option>";
+							$("#secondCategory").append(option);
+							getAttributeList();
+						}
+					}
+				});
+			}
+			
+			/* 根据类别ID获取属性集合,并追加到select[id=attributeId]中  */
+			function getAttributeList() {
+				var categoryId = $("#secondCategory").val();
+				$.ajax({
+					url: "/attribute/getAttributeListByCategory/" + categoryId,
+					method: "get",
+					dataType: "json",
+					success: function(data){
+						$("#attributeId option").remove();
+						for (var i = 0; i < data.length; i++){
+							var attribute = data[i];
+							var option = "<option value=" + attribute.attributeId + ">" + attribute.attributeName + "</option>";
+							$("#attributeId").append(option);
+						}
+					}
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="updateForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="firstCategory" style="text-align: right; line-height: 34px;">一级类别</label>
+									<div class="col-xs-7">
+										<select id="firstCategory" class="form-control" onchange="getSecondCategory()">
+											<option th:selected="${value.attribute.category.parent.categoryId} eq ${firstCategory.categoryId}" th:each="firstCategory:${firstCategoryList}" th:value="${firstCategory.categoryId}" th:text="${firstCategory.categoryName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="secondCategory" style="text-align: right; line-height: 34px;">二级类别</label>
+									<div class="col-xs-7">
+										<select id="secondCategory" class="form-control" onchange="getAttributeList()">
+											<option th:selected="${value.attribute.category.categoryId} eq ${secondCategory.categoryId}" th:each="secondCategory:${secondCategoryList}" th:value="${secondCategory.categoryId}" th:text="${secondCategory.categoryName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="attributeId" style="text-align: right; line-height: 34px;">属性</label>
+									<div class="col-xs-7">
+										<select id="attributeId" name="attributeId" class="form-control">
+											<option th:selected="${value.attribute.attributeId} eq ${attribute.attributeId}" th:each="attribute:${attributeList}" th:value="${attribute.attributeId}" th:text="${attribute.attributeName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="valueName" style="text-align: right; line-height: 34px;">属性值</label>
+									<div class="col-xs-7">
+										<input type="hidden" id="valueId" name="valueId" th:value="${value.valueId}">
+										<input type="text" class="form-control" id="valueName" name="valueName" th:value="${value.valueName}" placeholder="请输入属性值" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 提交</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

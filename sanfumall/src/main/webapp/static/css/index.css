@@ -1,0 +1,587 @@
+/* 设置整体的背景颜色 */
+body {
+	background-color: #f0f3ef;
+}
+/* 设置整体的布局 */
+#shortcut-2018, #header-2018, #body-2018, #footer-2018 {
+	/* 默认在分辨率为1366分辨率下运行 */
+	/* 最小宽度为屏幕宽度减去垂直滚动条宽度 1366px-17px */
+	/* 页面变小增加滚动条以便显示全部内容，防止页面缩放导致页面错乱 */
+	min-width: 1349px;
+}
+/* 清除bootstrap的container类的响应式布局 */
+.container {
+	/* margin: 0 15px 0 15px;  实际内容宽度为1140px*/
+	/* 固定container的宽度，屏幕不足，滚动条来凑 */
+	min-width: 1170px;
+	max-width: 1170px;
+}
+/* 菜单垂直分割线 */
+.spacer {
+	/* 显示为一条直线 */
+    width: 1px;
+	/* 与字体高度一致 */
+    height: 12px;
+	/* 设置上，左右的外边距，下边距为0, 与文本对齐 */
+    margin: 10px 5px 0;
+    /* 内边距设置为0，否则会撑大宽度（width） */
+	padding: 0;
+	/* 背景色 */
+    background-color: #ccc;
+	/* 当内容溢出元素框时,内容会被修剪，并且不可见 */
+    overflow: hidden;
+}
+
+/* 快捷方式设置 */
+#shortcut-2018 {
+	height: 32px;
+	/* 设置背景颜色 */
+	background-color: #e3e4e5;
+	/* 展示下边框 */
+	border-bottom: 1px solid #ddd;
+	font-size: 12px;
+}
+#shortcut-2018 .container {
+	height: 32px;
+	/* 设置快捷栏的文本行高：使文本垂直居中 */
+    line-height: 32px;
+	/* 设定字体颜色为灰色 */
+    color: #999;
+}
+#shortcut-2018 .shortcut-left {
+	/* 清除bootstrap的ul的下边距，同时设置左外边距 */
+	margin: 0 0 0 70px;
+}
+#shortcut-2018 .shortcut-right {
+	/* 清除bootstrap的ul的下边距，同时设置右外边距 */
+	margin: 0 70px 0 0;
+}
+#shortcut-2018 .shutcut-login {
+	margin: 0 10px 0 0;
+}
+#shortcut-2018 a {
+	color: #999;
+	padding: 0 10px;
+}
+#shortcut-2018 a.link-login, #shortcut-2018 a.link-regist, #shortcut-2018 .shortcut-home a {
+	padding: 0;
+}
+#shortcut-2018 a:hover, #shortcut-2018 .link-regist {
+	color: #f30213;
+}
+#shortcut-2018 li {
+	float: left;
+}
+
+/* 头部设置 */
+#header-2018 {
+	height: 140px;
+	/* 设置背景颜色 */
+	background-color: #f0f3ef;
+	font-size: 12px;
+	/* 添加下边框 */
+	border-bottom: 1px solid #f0f3ef;
+}
+#header-2018 .container {
+	height: 140px;
+	/* 为内部元素的绝对定位提供相对对象 */
+	position: relative;
+	/* 设定字体颜色为灰色 */
+	color: #999;
+}
+#header-search {
+	/* 搜索栏为最大宽度 */
+	width: 1140px;
+}
+.search-menu {
+	width: 1140px;
+	height: 60px;
+	position: relative;
+	/* 设置搜索框的堆叠顺序*/
+	z-index: 1;
+}
+.search-menu-top {
+	width: 1140px;
+	height: 60px;
+	position: fixed;
+	top: 0;
+	left: auto;
+	background-color: #f0f3ef;
+	border-bottom: 1px solid red;
+	/* 设置搜索框的堆叠顺序*/
+	z-index: 1;
+}
+#header-search .search-logo {
+	width: 270px;
+	height: 40px;
+	/* 方便logo的绝对定位 */
+	position: relative;
+}
+#header-search .logo {
+	/* 设置为行块元素，使其可以设置宽度与高度 */
+	display: inline-block;
+	width: 140px;
+	height: 40px;
+	/* 设置背景图片 */
+	background: url(/static/images/logo3.png) no-repeat;
+	background-size: 140px 40px;
+	/* 将超链接的文本内容移出页面 */
+	text-indent: -20000px;
+	/* 定位logo的位置 */
+	position: absolute;
+	left: 60px;
+	top: 15px;
+}
+#header-search .search-form {
+	width: 500px;
+	height: 48px;
+	/* 设置搜索框的定位方式为绝对定位 */
+	position: absolute;
+	left: 380px;
+	bottom: 0;
+}
+#header-search .search-input {
+	width: 400px;
+	height: 30px;
+	/* 设置输入框的位置 */
+	position: absolute;
+	left: 0;
+	bottom: 5px;
+	/* 设置输入框的字体 */
+	font: 16px 仿宋;
+	font-weight: 500;
+	color: #666;
+	text-indent: 5px;
+	line-height: 30px;
+	/* 设置输入框的边框 */
+	border-width: 2px 0 2px 2px;
+	border-color: #f30213;
+	outline: 0;
+}
+#header-search .search-button {
+	width: 100px;
+	height: 30px;
+	/* 设置按钮的位置 */
+	position: absolute;
+	left: 400px;
+	bottom: 5px;
+	/* 设置按钮的字体 */
+	font: 16px 仿宋;
+	font-weight: 500;
+	color: #fff;
+	line-height: 30px;
+	text-align: center;
+	/* 设置按钮的边框 */
+	border: none;
+	outline: none;
+	background-color: #f30213;
+}
+#mini-cart {
+	/* 定位mini购物车的位置 */
+	position: absolute;
+	left: 930px;
+	top: 25px;
+	z-index: 2;
+}
+#mini-cart .minicart {
+	width: 190px;
+	height: 32px;
+}
+#mini-cart .goCartIndex {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+	/* 设置购物车的字体 */
+	color: #f30213;
+	text-align: center;
+	line-height: 32px;
+	/* 设置背景颜色 */
+	background-color: #fff;
+	border: none;
+	outline: none;
+}
+#mini-cart button {
+	width: 100%;
+	height: 100%;
+	/* 设置购物车的字体 */
+	color: #f30213;
+	text-align: center;
+	line-height: 32px;
+	/* 设置背景颜色 */
+	background-color: #fff;
+	border: none;
+	outline: none;
+}
+#mini-cart .dropdown-menu {
+	/* 重置bootstrap下拉菜单的样式 */
+	min-width: 283px;
+    margin-top: 0;
+    border: none;
+    border-radius: unset;
+    box-shadow: none;
+}
+#mini-cart .minicart-list {
+	/* 设置最大宽度，超过显示滚动条 */
+	max-height: 240px;
+	overflow-y: scroll;
+} 
+#mini-cart .minicart-each {
+	/* 定义mini购物车里的每一项 */
+	min-width: 283px;
+	height: 60px;
+	position: relative;
+	font-size: 12px;
+	color: #999;
+}
+#mini-cart > li:hover .dropdown-menu {
+	/* 鼠标悬停显示迷你购物车 */
+	display: block;
+}
+.minicart > li {
+	min-width: 190px;
+}
+.minicart-each .minicart-product {
+	width: 203px;
+	height: 50px;
+	position: absolute;
+	top: 5px;
+	left: 0;
+}
+.minicart-product img {
+	height: 50px;
+	width: 50px;
+	float: left;
+}
+.minicart-product .name {
+	/* 定位位置 */
+	position: absolute;
+	top: 0px;
+	left: 55px;
+	/* 定义最大宽度 */
+	max-height: 50px;
+	/* 超出的文字部分隐藏 */
+	overflow: hidden;
+	/* 文字溢出截取掉 */
+	text-overflow: ellipsis;
+	/* 允许换行 */
+	white-space: normal;
+}
+.minicart-product a {
+	color: #999;
+}
+.minicart-product a:hover {
+	color: #f30213;
+}
+.minicart-each .price {
+	width: 80px;
+	height: 20px;
+	position: absolute;
+	right: 0;
+	top: 5px;
+	text-align: right;
+}
+.minicart-each .delete {
+	width: 80px;
+	height: 20px;
+	position: absolute;
+	right: 0;
+	top: 25px;
+	color: #999;
+	text-align: right;
+}
+.minicart-each:hover {
+	background-color: #f0f3ef;
+}
+#hellowords {
+	width: 500px;
+	height: 20px;
+	/* 设置问候语的位置 */
+	position: absolute;
+	left: 395px;
+	top: 62px;
+	/* 如果内容超出元素，则修剪掉 */
+    overflow: hidden;
+	/* 文字溢出截取掉 */
+	text-overflow: ellipsis;
+    line-height: 20px;
+}
+#header-nav {
+	/* bootstrap nav的最小宽度为50px */
+	max-height: 50px;
+	position: absolute;
+	left: 20px;
+	bottom: 0;
+	/* 防止文本自动换行 */
+	font-size: 14px;
+}
+#header-nav .navbar {
+	/* 清除bootstrap的navbar样式 */
+	border: none;
+	margin-bottom: 0;
+}
+#header-nav .navbar-nav {
+	margin: 0;
+	white-space: normal;
+}
+#header-nav .all-menu-nav {
+	/* 下拉最小宽度为160px */
+	width: 220px;
+	min-height: 50px;
+	background-color: #f30213;
+	color: #fff;
+	text-align: center;
+}
+.all-menu-nav > .dropdown-menu {
+	min-width: 220px;
+}
+#header-nav .all-menu-nav > a {
+	color: #fff;
+}
+#header-nav .all-menu-nav > a:hover, #header-nav .all-menu-nav > a:visited, #header-nav .all-menu-nav > a:link {
+	background-color: #f30213;
+	color: #fff;
+}
+#header-nav .dropdown-menu a {
+	background-color: #fff;
+	color: #999;
+}
+#header-nav .dropdown-menu a:hover {
+	background-color: #f0f3ef;
+	color: #f30213;
+}
+#header-nav .dropdown-menu a {
+	background-color: #fff;
+	color: #999;
+}
+#header-nav .nav > li:not(.all-menu-nav) > a {
+	width: 150px;
+	height: 50px;
+	font-size: 14px;
+	font-weight: 550;
+	color: #333;
+	text-align: center;
+}
+#header-nav .nav > li:not(.all-menu-nav) > a:hover {
+	width: 150px;
+	height: 50px;
+	text-align: center;
+	font-size: 16px;
+	color: #f30213;
+	-webkit-text-stroke: .5px #f30213;
+	background-color: #f0f3ef;
+}
+.nav > li:hover > .dropdown-menu {
+	/* 鼠标悬停显示下拉菜单 */
+	display: block;
+}
+	/* 设置三级菜单模块 */
+#header-nav .nav .dropdown-menu > .third-menu ul {
+	max-height: 300px;
+	overflow: auto;
+	background-color: #f0f3ef;
+}
+#header-nav .dropdown-submenu li > a {
+	text-align: center;
+	background-color: #f0f3ef;
+}
+
+/* 主体设置 */
+#body-2018 {
+	/* 设置背景颜色 */
+	background-color: #f0f3ef;
+	font-size: 12px;
+	/* 添加下边框 */
+	border-bottom: 1px solid #f0f3ef;
+}
+#body-2018 .container {
+	width: 1170px;
+	/* 设定字体颜色为灰色 */
+	color: #999;
+}
+#body-header {
+	width: 100%;
+	height: 470px;
+	min-width: 1140px;
+	/* 为内部元素的绝对定位提供相对对象 */
+	position: relative;
+	margin: 10px 0 90px 0;
+}
+#body-header .my-slideshow {
+	width: 700px;
+	height: 470px;
+	position: absolute;
+	top: 0;
+	left: 10px;
+}
+#body-header .my-slideshow img {
+	/* 设置图片的大小 */
+	width: 100%;
+	height: 470px;
+}
+.carousel-control.right {
+	/* 去除轮播图的阴影 */
+	background-image: linear-gradient(to right, rgba(0, 0, 0, 0.0001) 0%, rgba(0, 0, 0, 0.1) 100%);
+}
+#body-header .custom {
+	width: 250px;
+	height: 370px;
+	position: absolute;
+	top: 0;
+	right: 50px;
+	background-color: #fff;
+}
+#custom-header {
+	height: 90px;
+	position: relative;
+	border-bottom: 1px solid #f0f3ef;
+}
+#custom-header > a {
+	display: inline-block;
+	width: 48px;
+	height: 48px;
+	position: absolute;
+	top: 10px;
+	left: 101px;
+	/* 头像以圆展示 */
+	border-radius: 50%;
+}
+#custom-header img {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+}
+#custom-header .custom-name {
+	width: 100px;
+	height: 35px;
+	position: absolute;
+	top: 67px;
+	left: 90px;
+}
+#custom-body {
+	width: 100%;
+	height: 280px;
+}
+#custom-body .dd a {
+	display: inline-block;
+	text-align: center;
+	line-height: 40px;
+	border-bottom: 1px solid #f0f3ef;
+}
+#custom-body .dd, #custom-body .dd a {
+	width: 100%;
+	height: 40px;
+}
+	/* #custom-body a特效 */
+#custom-body .dd a:hover {
+	color: #fff;
+}
+#custom-body .a1:hover {
+	background-color: red;
+}
+#custom-body .a2:hover {
+	background-color: orange;
+}
+#custom-body .a3:hover {
+	background-color: yellow;
+}
+#custom-body .a4:hover {
+	background-color: green;
+}
+#custom-body .a5:hover {
+	background-color: cyan;
+}
+#custom-body .a6:hover {
+	background-color: blue;
+}
+#custom-body .a7:hover {
+	background-color: purple;
+}
+/* 商品展示  */
+#content .my-modal {
+	width: 1140px;
+	margin: 20px 0;
+	background-color: #fff;
+}
+#content .my-modal .my-modal-header {
+	min-width: 1140px;
+	height: 80px;
+	font-size: 30px;
+	font-weight: 600;
+	font-family: "仿宋";
+	color: #000;
+	text-align: center;
+	line-height: 80px;
+	border-bottom: 2px solid #000;
+}
+#content .my-modal .my-modal-content {
+	min-width: 1140px;
+	border: 1px solid #f0f3ef;
+	background-color: #fff;
+	min-height: 930px; 
+}
+#content .my-modal .my-modal-content .each {
+	width: 230px;
+	height: 300px;
+	background-color: #fff;
+	font-size: 14px;
+	float: left;
+	margin:5px 25px;
+	text-align: center;
+}
+#content .my-modal .my-modal-content .each img {
+	padding: 10px 0;
+	width: 150px;
+	height: 180px;
+}
+#content .my-modal .my-modal-content .each p {
+	padding:0 26px;
+	text-align: left;
+	line-height: 20px;
+	margin-bottom: 14px;
+	max-height: 40px;
+	overflow: hidden;
+}
+#content .my-modal .my-modal-content .each span {
+	color: #ee0000;
+}
+
+/* 底部设置 */
+#footer-2018 {
+	
+}
+#footer-2018 .container {
+	
+}
+
+/* 返回顶部 */
+#backtop {
+	display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 0;
+	margin: 0;
+}
+#backtop a {
+	text-decoration: none;
+	display: inline-block;
+	position: relative;
+	width: 80px;
+	height: 40px;
+	text-align: right;
+	color: #999;
+    /*使用CSS3中的transition属性给跳转链接中的文字添加渐变效果*/
+    -moz-transition: color 1s;
+    -webkit-transition: color 1s;
+    -o-transition: color 1s;
+}
+#backtop a:hover span {
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	background-image: url(/static/images/backtop.png);
+	background-size: 40px 40px;
+	border-radius: 6px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}

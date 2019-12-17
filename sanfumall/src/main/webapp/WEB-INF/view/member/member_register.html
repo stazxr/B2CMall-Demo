@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+		<meta charset="UTF-8">
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  		<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+		<link rel="stylesheet" href="/static/css/main.css">
+  		<link rel="stylesheet" href="/static/common/layui/css/layui.css">
+  		<script src="/static/common/layui/layui.js"></script>
+  		<script src="/static/js/jquery-3.3.1.min.js"></script>
+  		<style>
+  			.alert-warning {
+  				border: 1px solid #ffb4a8;
+  				border-radius: 4px;
+  				color: #6C6C6C;
+  				background-color: #fef2f2;
+  				float: right;
+			    min-width: 920px;
+			    height: 40px;
+			    line-height: 40px;
+			    margin: 30px 30px 0 0;
+  			}
+  		</style>
+  		<script>
+	  		$(document).ready(function(){
+		  		$("#memberRegister").click(function() {
+		  			var registerForm = $("#registerForm").serialize();
+					$.ajax({
+						url: "/member/register",
+						method: "post",
+						data: registerForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("注册成功！");
+								location.href="/member/login";
+							} else {
+								alert("注册失败！");
+								location.href="/member/register";
+							}
+						}
+					});
+				});
+	  		});
+  		</script>
+	</head>
+	<body>
+		<div class="site-nav-bg" style="min-width: 1394px;">
+			<div class="site-nav w1200">
+		      	<p class="sn-back-home">
+		        	<i class="layui-icon layui-icon-home"></i>
+		        	<a href="/index">首页</a>
+		      	</p>
+		      	<div class="sn-quick-menu">
+			        <div class="login"><a href="/member/login">有账号，去登录</a></div>
+      			</div>
+		    </div>
+		</div>
+		<div class="header" style="min-width: 1394px;">
+    		<div class="headerLayout w1200">
+      			<div class="headerCon">
+        			<h1 class="mallLogo">
+		          		<a href="/index" title="进入SanFu商城">
+		            		<img src="/static/images/logo2.png">
+		          		</a>
+        			</h1>
+        			<div class="alert-warning">
+						 为确保您账户的安全及正常使用，依《SanFu规章》相关要求，注册会员账号需绑定邮箱，以便登录以及密码的找回，感谢您的理解及支持！
+					</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="content content-nav-base  login-content">
+    		<div class="main-nav" style="min-width: 1394px;"></div>
+    		<div class="login-bg" style="min-width: 1394px;">
+      			<div class="login-cont w1200">
+        			<div class="form-box">
+          				<form class="layui-form" id="registerForm">
+            				<legend style="padding: 30px 0;">邮箱注册</legend>
+            				<div class="layui-form-item">
+              					<div class="layui-inline iphone">
+                					<div class="layui-input-inline">
+						                 <i class="layui-icon layui-icon-username iphone-icon"></i>
+						                 <input type="text" id="nickname" name="nickname" lay-verify="required" placeholder="昵称（最多10个字符）" autocomplete="off" class="layui-input" maxlength="10">
+                					</div>
+              					</div>
+              					<div class="layui-inline iphone">
+                					<div class="layui-input-inline">
+						                 <i class="layui-icon layui-icon-password iphone-icon"></i>
+						                 <input type="password" id="password" name="password" lay-verify="required" placeholder="密码（6-16个字符组成，区分大小写）" autocomplete="off" class="layui-input" disabled>
+                					</div>
+              					</div>
+              					<div class="layui-inline iphone">
+                					<div class="layui-input-inline">
+						                 <i class="layui-icon layui-icon-link iphone-icon"></i>
+						                 <input type="text" id="email" name="email" lay-verify="required|email" placeholder="填写常用邮箱" autocomplete="off" class="layui-input" disabled>
+                					</div>
+              					</div>
+	              				<div class="layui-inline veri-code iphone">
+					                <div class="layui-input-inline">
+					                	<i class="layui-icon layui-icon-vercode iphone-icon"></i>
+					                  	<input id="emailCode" type="text" lay-verify="required" placeholder="请输入邮箱验证码" autocomplete="off" class="layui-input" maxlength="6" disabled/>
+					                  	<input type="button" class="layui-btn" id="getEmailCode" value="获取验证码" /> 
+					                </div>
+					           	</div>
+            				</div>
+            				<div class="layui-form-item login-btn">
+				            	<div class="layui-input-block" style="padding: 0;">
+				            		<button class="layui-btn" type="button" lay-submit="" id="memberRegister">注册</button>
+				            	</div>
+            				</div>
+          				</form>
+        			</div>
+      			</div>
+    		</div>
+  		</div>
+  		<div class="footer" style="min-width: 1394px;">
+		    <div class="ng-promise-box">
+		      	<div class="ng-promise w1200">
+		        	<p class="text">
+			          	<a class="icon1" href="#">无理由退换货</a>
+			          	<a class="icon2" href="#">全国免邮</a>
+			          	<a class="icon3" style="margin-right: 0" href="#">100%品质保证</a>
+		        	</p>
+		      	</div>
+		    </div>
+		    <div class="mod_help w1200">                                     
+		      	<p class="coty">SanFu商城版权所有 &copy; 2018-2020</p>
+		    </div>
+		</div>
+	</body>
+	<script>
+		$(function() {
+			$("#memberRegister").hide();
+		});
+	
+		layui.config({
+	      	base: '/static/js/util'
+	    }).use(['jquery','form'],function(){
+			var $ = layui.$,form = layui.form;
+			
+			$("#nickname").blur(function() {
+				// 当会员输入完昵称后，昵称是否合理！
+				var nickname = $("#nickname").val();
+				var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				if (nickname.length == 0) {
+					layer.msg("请输入昵称！");
+					return false;
+				} else if (pattern.test(nickname)) {
+					layer.msg("禁止输入特殊字符或空格！");
+					$("#nickname").val("");
+					return false;
+				} else {
+					$("#password").removeAttr("disabled");
+					$("#nickname").attr("readonly", "true");
+				}
+			});
+			
+			$("#password").blur(function() {
+				// 当会员输入完密码后，密码是否合理！
+				var password = $("#password").val();
+				var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				if (password.length < 6 || password.length > 16) {
+					layer.msg("密码必须由6-16个字符组成！");
+					$("#password").val("");
+					return false;
+				} else if (pattern.test(password)) {
+					layer.msg("禁止输入特殊字符或空格！");
+					$("#password").val("");
+					return false;
+				} else {
+					$("#email").removeAttr("disabled");
+					$("#password").attr("readonly", "true");
+				}
+			});
+			
+			$("#email").blur(function() {
+				// 当会员输入完邮箱后，邮箱是否合理！
+				var email = $("#email").val();
+				if (!(/^[0-9A-Za-z][\.-_0-9A-Za-z]*@[0-9A-Za-z]+(\.[0-9A-Za-z]+)+$/).test(email)){
+	            	layer.msg("请输入正确的邮箱!");
+	            	$("#email").val("");
+	              	return false;
+	            }
+				$.ajax({
+	                type: "get",
+	                url: "/member/checkEmailRemote",
+	                data: {"email": email},
+	                dataType:"json",
+	                success:function(data) {
+	                    if(!data){
+	                    	layer.msg("邮箱已被注册！");
+	                    	$("#email").val("");
+	                    }
+	                }
+	            });
+			});
+			
+			$("#getEmailCode").click(function() {
+	            var button = this;
+ 	            // 禁用按钮，防止多次点击发送多条验证码
+				if ($("#email").val() != "") {
+					button.value="正在发送...";
+					$("#getEmailCode").addClass(" layui-btn-disabled");
+			        $("#getEmailCode").attr("disabled","true");
+				}	           
+	            // 异步发送邮箱
+	            $.ajax({
+	                type: "get",
+	                url: "/member/sendEmail",
+	                data: {"email": function() {
+						var email = $("#email").val();
+						return email;
+					}},
+	                dataType:"json",
+	                success:function(data) {
+	                    if(data){
+	    			        $("#email").attr("readonly","true");
+	                        $("#emailCode").removeAttr("disabled");
+	                        settime(button);
+	                    } else {
+	                    	button.value="获取验证码";
+	                    	layer.msg("发送失败!");
+	                    }
+	                }
+	            }); 
+	        });
+			
+			$("#emailCode").keyup(function() {
+				var emailCode = $("#emailCode").val();
+				if (emailCode.length == 6) {
+					// 异步判断验证码是否正确
+		            $.ajax({
+		                type: "get",
+		                url: "/member/checkEmailCode/" + emailCode,
+		                dataType:"json",
+		                success:function(data) {
+		                    if(!data){
+		                    	layer.msg("验证码填写错误");
+		                    	$("#emailCode").val("");
+		                    } else {
+		                    	$("#emailCode").attr("readonly","true");
+		                    	$("#memberRegister").show();
+		                    }
+		                }
+		            });
+				}
+			});
+	        
+	        var countdown = 60;
+	        function settime(button) { 
+	        if (countdown == 0) { 
+	        	button.removeAttribute("disabled");
+	        	button.classList.remove("layui-btn-disabled")
+	            button.value="获取验证码"; 
+	            countdown = 60; 
+	            return;
+	        } else { 
+	        	button.value="重新发送(" + countdown + ")"; 
+	            countdown--; 
+	        } 
+	        setTimeout(function() { 
+	            settime(button) }
+	            ,1000) 
+	        }
+	    });
+	</script>
+</html>

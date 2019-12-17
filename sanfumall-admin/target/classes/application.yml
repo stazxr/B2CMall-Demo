@@ -1,0 +1,43 @@
+## 配置启动端口号
+server:
+  port: 8080
+## 配置Mysql的基本信息
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sanfu?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: root
+  ## 设置修改thymeleaf请求转发路径
+  thymeleaf:
+    cache: false
+    encoding: utf-8
+    prefix: /WEB-INF/view/
+    suffix: .html
+  ## jpa相关配置
+  jpa:
+    show-sql: true
+    ## 在处理请求时，将 EntityManager绑定到整个处理流程中
+    open-in-view: true
+    ## 当配置的值是 true的时候，允许在没有 transaction的情况下支持懒加载。
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+## mail相关配置
+  mail:
+    host: smtp.qq.com
+    protocol: smtp
+    username: stazxr@qq.com
+    ## 邮箱授权码
+    password: vfgcuzyswsambahi
+    properties:
+      mail: 
+        smtp:
+          auth: true
+          starttls: 
+            enable: true
+            required: true
+  servlet: 
+    multipart: 
+      max-file-size: 100Mb
+      max-request-size: 1000Mb

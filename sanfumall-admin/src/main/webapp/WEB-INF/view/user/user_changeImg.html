@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>修改个人头像</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/common/uploadify/uploadify.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/uploadify/jquery.uploadify.js"></script>
+		<style>
+			#system_img, #xingZuo, #cartoon, #blackWhite, #animal, #vegetables, #other {
+				display: none;
+				margin: 10px 0;
+			}
+			#system_img input {
+				display: none;
+			}
+			#system_img label, #system_img .label {
+				display: inline-block;
+				width: 48px;
+				height: 48px;
+				cursor: pointer;
+			}
+		</style>
+		<script>
+			$(function(){
+				$("#file").uploadify({
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/userImgUpload",
+					// 设定上传方式
+					"method": "post",
+					// 取消自动上传（按钮触发上传）
+					"auto": false,
+					// 设定上传的文本内容
+					"buttonText": "上传头像",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "uploadUserImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 限制上传文件的大小
+					"fileSizeLimit" : "100KB",
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/userImg/" + data;
+						$("#imgUrl").val(src);
+						$("#myImg").attr("src", src);
+					},
+					// 检测不到兼容的flash时触发的事件
+					"onFallback" : function() { 
+			            alert("未检测到Flash,请启用flash插件。"); 
+			        }
+				});
+			});
+			
+			/* 选择系统头像  */
+			function chooseSystemImg() {
+				var status = $("#system_img").css("display");
+				if (status == 'none') {
+					$("#system_img").css("display","block");
+				} else {
+					$(".sysimg").css("display","none");
+					$("#system_img").css("display","none");
+				}
+			}
+			
+			/* 12星座  */
+			function xingZuoImg() {
+				var status = $("#xingZuo").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#xingZuo").css("display","block");
+				} else {
+					$("#xingZuo").css("display","none");
+				}
+			}
+			
+			/* 卡通  */
+			function cartoonImg() {
+				var status = $("#cartoon").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#cartoon").css("display","block");
+				} else {
+					$("#cartoon").css("display","none");
+				}
+			}
+			
+			/* 黑白 */
+			function blackWhiteImg() {
+				var status = $("#blackWhite").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#blackWhite").css("display","block");
+				} else {
+					$("#blackWhite").css("display","none");
+				}
+			}
+			
+			/* 动物  */
+			function animalImg() {
+				var status = $("#animal").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#animal").css("display","block");
+				} else {
+					$("#animal").css("display","none");
+				}
+			}
+			
+			/* 蔬菜  */
+			function vegetablesImg() {
+				var status = $("#vegetables").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#vegetables").css("display","block");
+				} else {
+					$("#vegetables").css("display","none");
+				}
+			}
+			
+			/* 其他  */
+			function otherImg() {
+				var status = $("#other").css("display");
+				if (status == 'none') {
+					$(".sysimg").css("display","none");
+					$("#other").css("display","block");
+				} else {
+					$("#other").css("display","none");
+				}
+			}
+
+			/* 当鼠标进入上传按钮，关闭选择系统头像  */
+			$(function() {
+				$("#SWFUpload_0, .swfupload, object").mouseenter(function() {
+					$(".sysimg").css("display","none");
+					$("#system_img").css("display","none");
+				});
+			});
+			
+			/* 选择图片后回显图片  */
+			$(function() {
+				$("#system_img label").click(function() {
+					var src = this.title;
+					$("#imgUrl").val(src);
+					$("#myImg").attr("src", src);
+					var img = $("#imgUrl").val();
+				});
+			});
+			
+			/* 根据用户Id与头像地址保存头像 */
+			function savaImgUrl() {
+				var userId = $("#userId").val();
+				var imgUrl = $("#imgUrl").val();
+				$.ajax({
+					url: "/user/changeImg",
+					method: "put",
+					data: {
+						"userId": userId,
+						"imgUrl": imgUrl
+					},
+					dataType: "json",
+					success: function(data){
+						if(data){
+							alert("修改成功");
+						} else {
+							alert("修改失败");
+						}
+						parent.closeModal();
+// 						url = "/admin";
+// 						parent.location.href = url;
+						parent.openFrame("/user/self");
+					}
+				});
+			}
+			
+		</script>
+	</head>
+	<body>
+		<div class="container" style="min-width:500px; min-height: 400px; margin-top: 10px;">
+			<!-- header -->
+			<div>
+				<label>你好，<em th:text="${user.username}"></em>，当前头像为： </label>
+				<img id="myImg" th:src="${user.imgUrl}" style="width: 50px;height: 50px;">
+				<label> 你可以选择系统头像或者上传头像（需要flash支持，火狐可能上传失败）</label>
+			</div>
+			<!-- 选择系统头像 -->
+			<div style="margin: 10px 0;">
+				<button type="button" class="btn btn-info" onclick="chooseSystemImg()" style="width: 120px;">选择系统头像</button>
+				<div id="system_img">
+					<form>
+						<div>
+							<button type="button" class="btn btn-sm" onclick="xingZuoImg()" style="background-color: #ab1aee; color: #fff;">12星座头像</button>
+							<button type="button" class="btn btn-sm" onclick="cartoonImg()" style="background-color: #d728ac; color: #fff;">卡通头像</button>
+							<button type="button" class="btn btn-sm" onclick="blackWhiteImg()" style="background-color: #000; color: #fff;">黑白头像</button>
+							<button type="button" class="btn btn-sm" onclick="animalImg()" style="background-color: #2ddddb; color: #fff;">动物头像</button>
+							<button type="button" class="btn btn-sm" onclick="vegetablesImg()" style="background-color: #1aee24; color: #fff;">蔬菜头像</button>
+							<button type="button" class="btn btn-sm" onclick="otherImg()" style="background-color: #b4bc8d; color: #fff;">其他</button>
+						</div>
+						<!-- 12星座 -->
+						<div id="xingZuo" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_01.png');">
+								<label for="img1" title="/static/images/systemImg/12xingZuo/12xingzuo_01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_02.png');">
+								<label for="img2" title="/static/images/systemImg/12xingZuo/12xingzuo_02.png"></label>
+							</div>			
+							<input type="radio" id="img2"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_03.png');">
+								<label for="img3" title="/static/images/systemImg/12xingZuo/12xingzuo_03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_04.png');">
+								<label for="img4" title="/static/images/systemImg/12xingZuo/12xingzuo_04.png"></label>
+							</div>			
+							<input type="radio" id="img4"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_05.png');">
+								<label for="img5" title="/static/images/systemImg/12xingZuo/12xingzuo_04.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_06.png');">
+								<label for="img6" title="/static/images/systemImg/12xingZuo/12xingzuo_06.png"></label>
+							</div>			
+							<input type="radio" id="img6"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_07.png');">
+								<label for="img7" title="/static/images/systemImg/12xingZuo/12xingzuo_07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_08.png');">
+								<label for="img8" title="/static/images/systemImg/12xingZuo/12xingzuo_08.png"></label>
+							</div>			
+							<input type="radio" id="img8"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_09.png');">
+								<label for="img9" title="/static/images/systemImg/12xingZuo/12xingzuo_09.png"></label>
+							</div>			
+							<input type="radio" id="img9" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_10.png');">
+								<label for="img10" title="/static/images/systemImg/12xingZuo/12xingzuo_10.png"></label>
+							</div>			
+							<input type="radio" id="img10"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_11.png');">
+								<label for="img11" title="/static/images/systemImg/12xingZuo/12xingzuo_11.png"></label>
+							</div>			
+							<input type="radio" id="img11" />
+							<div class="label" style="background-image: url('/static/images/systemImg/12xingZuo/12xingzuo_12.png');">
+								<label for="img12" title="/static/images/systemImg/12xingZuo/12xingzuo_12.png"></label>
+							</div>			
+							<input type="radio" id="img12"/>
+						</div>
+						<!-- 卡通动画 -->
+						<div id="cartoon" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img01.png');">
+								<label for="img1" title="/static/images/systemImg/cartoon/img01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img02.png');">
+								<label for="img2" title="/static/images/systemImg/cartoon/img02.png"></label>
+							</div>			
+							<input type="radio" id="img2"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img03.png');">
+								<label for="img3" title="/static/images/systemImg/cartoon/img03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img04.png');">
+								<label for="img4" title="/static/images/systemImg/cartoon/img04.png"></label>
+							</div>			
+							<input type="radio" id="img4"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img05.png');">
+								<label for="img5" title="/static/images/systemImg/cartoon/img05.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img06.png');">
+								<label for="img6" title="/static/images/systemImg/cartoon/img06.png"></label>
+							</div>			
+							<input type="radio" id="img6"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img07.png');">
+								<label for="img7" title="/static/images/systemImg/cartoon/img07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img08.png');">
+								<label for="img8" title="/static/images/systemImg/cartoon/img08.png"></label>
+							</div>			
+							<input type="radio" id="img8"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img09.png');">
+								<label for="img9" title="/static/images/systemImg/cartoon/img09.png"></label>
+							</div>			
+							<input type="radio" id="img9" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img10.png');">
+								<label for="img10" title="/static/images/systemImg/cartoon/img10.png"></label>
+							</div>			
+							<input type="radio" id="img10"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img11.png');">
+								<label for="img11" title="/static/images/systemImg/cartoon/img11.png"></label>
+							</div>			
+							<input type="radio" id="img11" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img12.png');">
+								<label for="img12" title="/static/images/systemImg/cartoon/img12.png"></label>
+							</div>			
+							<input type="radio" id="img12"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img13.png');">
+								<label for="img13" title="/static/images/systemImg/cartoon/img13.png"></label>
+							</div>			
+							<input type="radio" id="img13" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img14.png');">
+								<label for="img14" title="/static/images/systemImg/cartoon/img14.png"></label>
+							</div>			
+							<input type="radio" id="img14"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img15.png');">
+								<label for="img15" title="/static/images/systemImg/cartoon/img15.png"></label>
+							</div>			
+							<input type="radio" id="img15" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img16.png');">
+								<label for="img16" title="/static/images/systemImg/cartoon/img16.png"></label>
+							</div>			
+							<input type="radio" id="img16"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img17.png');">
+								<label for="img17" title="/static/images/systemImg/cartoon/img17.png"></label>
+							</div>			
+							<input type="radio" id="img17" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img18.png');">
+								<label for="img18" title="/static/images/systemImg/cartoon/img18.png"></label>
+							</div>			
+							<input type="radio" id="img18"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img19.png');">
+								<label for="img19" title="/static/images/systemImg/cartoon/img19.png"></label>
+							</div>			
+							<input type="radio" id="img19" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img20.png');">
+								<label for="img20" title="/static/images/systemImg/cartoon/img20.png"></label>
+							</div>			
+							<input type="radio" id="img20"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img21.png');">
+								<label for="img21" title="/static/images/systemImg/cartoon/img21.png"></label>
+							</div>			
+							<input type="radio" id="img21" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img22.png');">
+								<label for="img22" title="/static/images/systemImg/cartoon/img22.png"></label>
+							</div>			
+							<input type="radio" id="img22"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img23.png');">
+								<label for="img23" title="/static/images/systemImg/cartoon/img23.png"></label>
+							</div>			
+							<input type="radio" id="img23" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img24.png');">
+								<label for="img24" title="/static/images/systemImg/cartoon/img24.png"></label>
+							</div>			
+							<input type="radio" id="img24"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img25.png');">
+								<label for="img25" title="/static/images/systemImg/cartoon/img25.png"></label>
+							</div>			
+							<input type="radio" id="img25" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img26.png');">
+								<label for="img26" title="/static/images/systemImg/cartoon/img26.png"></label>
+							</div>			
+							<input type="radio" id="img26"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img27.png');">
+								<label for="img27" title="/static/images/systemImg/cartoon/img27.png"></label>
+							</div>			
+							<input type="radio" id="img27" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img28.png');">
+								<label for="img28" title="/static/images/systemImg/cartoon/img28.png"></label>
+							</div>			
+							<input type="radio" id="img28"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img29.png');">
+								<label for="img29" title="/static/images/systemImg/cartoon/img29.png"></label>
+							</div>			
+							<input type="radio" id="img29" />
+							<div class="label" style="background-image: url('/static/images/systemImg/cartoon/img30.png');">
+								<label for="img30" title="/static/images/systemImg/cartoon/img30.png"></label>
+							</div>			
+							<input type="radio" id="img30"/>
+						</div>
+						<!-- 黑白头像  -->
+						<div id="blackWhite" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img01.png');">
+								<label for="img1" title="/static/images/systemImg/blackWhite/img01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img02.png');">
+								<label for="img2" title="/static/images/systemImg/blackWhite/img02.png"></label>
+							</div>			
+							<input type="radio" id="img2"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img03.png');">
+								<label for="img3" title="/static/images/systemImg/blackWhite/img03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img04.png');">
+								<label for="img4" title="/static/images/systemImg/blackWhite/img04.png"></label>
+							</div>			
+							<input type="radio" id="img4"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img05.png');">
+								<label for="img5" title="/static/images/systemImg/blackWhite/img05.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img06.png');">
+								<label for="img6" title="/static/images/systemImg/blackWhite/img06.png"></label>
+							</div>			
+							<input type="radio" id="img6"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img07.png');">
+								<label for="img7" title="/static/images/systemImg/blackWhite/img07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img08.png');">
+								<label for="img8" title="/static/images/systemImg/blackWhite/img08.png"></label>
+							</div>			
+							<input type="radio" id="img8"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img09.png');">
+								<label for="img9" title="/static/images/systemImg/blackWhite/img09.png"></label>
+							</div>			
+							<input type="radio" id="img9" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img10.png');">
+								<label for="img10" title="/static/images/systemImg/blackWhite/img10.png"></label>
+							</div>			
+							<input type="radio" id="img10"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img11.png');">
+								<label for="img11" title="/static/images/systemImg/blackWhite/img11.png"></label>
+							</div>			
+							<input type="radio" id="img11" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img12.png');">
+								<label for="img12" title="/static/images/systemImg/blackWhite/img12.png"></label>
+							</div>			
+							<input type="radio" id="img12"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img13.png');">
+								<label for="img13" title="/static/images/systemImg/blackWhite/img13.png"></label>
+							</div>			
+							<input type="radio" id="img13" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img14.png');">
+								<label for="img14" title="/static/images/systemImg/blackWhite/img14.png"></label>
+							</div>			
+							<input type="radio" id="img14"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img15.png');">
+								<label for="img15" title="/static/images/systemImg/blackWhite/img15.png"></label>
+							</div>			
+							<input type="radio" id="img15" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img16.png');">
+								<label for="img16" title="/static/images/systemImg/blackWhite/img16.png"></label>
+							</div>			
+							<input type="radio" id="img16"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img17.png');">
+								<label for="img17" title="/static/images/systemImg/blackWhite/img17.png"></label>
+							</div>			
+							<input type="radio" id="img17" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img18.png');">
+								<label for="img18" title="/static/images/systemImg/blackWhite/img18.png"></label>
+							</div>			
+							<input type="radio" id="img18"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img19.png');">
+								<label for="img19" title="/static/images/systemImg/blackWhite/img19.png"></label>
+							</div>			
+							<input type="radio" id="img19" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img20.png');">
+								<label for="img20" title="/static/images/systemImg/blackWhite/img20.png"></label>
+							</div>			
+							<input type="radio" id="img20"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img21.png');">
+								<label for="img21" title="/static/images/systemImg/blackWhite/img21.png"></label>
+							</div>			
+							<input type="radio" id="img21" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img22.png');">
+								<label for="img22" title="/static/images/systemImg/blackWhite/img22.png"></label>
+							</div>			
+							<input type="radio" id="img22"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img23.png');">
+								<label for="img23" title="/static/images/systemImg/blackWhite/img23.png"></label>
+							</div>			
+							<input type="radio" id="img23" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img24.png');">
+								<label for="img24" title="/static/images/systemImg/blackWhite/img24.png"></label>
+							</div>			
+							<input type="radio" id="img24"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img25.png');">
+								<label for="img25" title="/static/images/systemImg/blackWhite/img25.png"></label>
+							</div>			
+							<input type="radio" id="img25" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img26.png');">
+								<label for="img26" title="/static/images/systemImg/blackWhite/img26.png"></label>
+							</div>			
+							<input type="radio" id="img26"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img27.png');">
+								<label for="img27" title="/static/images/systemImg/blackWhite/img27.png"></label>
+							</div>			
+							<input type="radio" id="img27" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img28.png');">
+								<label for="img28" title="/static/images/systemImg/blackWhite/img28.png"></label>
+							</div>			
+							<input type="radio" id="img28"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img29.png');">
+								<label for="img29" title="/static/images/systemImg/blackWhite/img29.png"></label>
+							</div>			
+							<input type="radio" id="img29" />
+							<div class="label" style="background-image: url('/static/images/systemImg/blackWhite/img30.png');">
+								<label for="img30" title="/static/images/systemImg/blackWhite/img30.png"></label>
+							</div>			
+							<input type="radio" id="img30"/>
+						</div>
+						<!-- 动物头像 -->
+						<div id="animal" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img01.png');">
+								<label for="img1" title="/static/images/systemImg/animal/img01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img02.png');">
+								<label for="img2" title="/static/images/systemImg/animal/img02.png"></label>
+							</div>			
+							<input type="radio" id="img2"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img03.png');">
+								<label for="img3" title="/static/images/systemImg/animal/img03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img04.png');">
+								<label for="img4" title="/static/images/systemImg/animal/img04.png"></label>
+							</div>			
+							<input type="radio" id="img4"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img05.png');">
+								<label for="img5" title="/static/images/systemImg/animal/img05.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img06.png');">
+								<label for="img6" title="/static/images/systemImg/animal/img06.png"></label>
+							</div>			
+							<input type="radio" id="img6"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img07.png');">
+								<label for="img7" title="/static/images/systemImg/animal/img07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img08.png');">
+								<label for="img8" title="/static/images/systemImg/animal/img08.png"></label>
+							</div>			
+							<input type="radio" id="img8"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img09.png');">
+								<label for="img9" title="/static/images/systemImg/animal/img09.png"></label>
+							</div>			
+							<input type="radio" id="img9" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img10.png');">
+								<label for="img10" title="/static/images/systemImg/animal/img10.png"></label>
+							</div>			
+							<input type="radio" id="img10"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img11.png');">
+								<label for="img11" title="/static/images/systemImg/animal/img11.png"></label>
+							</div>			
+							<input type="radio" id="img11" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img12.png');">
+								<label for="img12" title="/static/images/systemImg/animal/img12.png"></label>
+							</div>			
+							<input type="radio" id="img12"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img13.png');">
+								<label for="img13" title="/static/images/systemImg/animal/img13.png"></label>
+							</div>			
+							<input type="radio" id="img13" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img14.png');">
+								<label for="img14" title="/static/images/systemImg/animal/img14.png"></label>
+							</div>			
+							<input type="radio" id="img14"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img15.png');">
+								<label for="img15" title="/static/images/systemImg/animal/img15.png"></label>
+							</div>			
+							<input type="radio" id="img15" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img16.png');">
+								<label for="img16" title="/static/images/systemImg/animal/img16.png"></label>
+							</div>			
+							<input type="radio" id="img16"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img17.png');">
+								<label for="img17" title="/static/images/systemImg/animal/img17.png"></label>
+							</div>			
+							<input type="radio" id="img17" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img18.png');">
+								<label for="img18" title="/static/images/systemImg/animal/img18.png"></label>
+							</div>			
+							<input type="radio" id="img18"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img19.png');">
+								<label for="img19" title="/static/images/systemImg/animal/img19.png"></label>
+							</div>			
+							<input type="radio" id="img19" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img20.png');">
+								<label for="img20" title="/static/images/systemImg/animal/img20.png"></label>
+							</div>			
+							<input type="radio" id="img20"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img21.png');">
+								<label for="img21" title="/static/images/systemImg/animal/img21.png"></label>
+							</div>			
+							<input type="radio" id="img21" />
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img22.png');">
+								<label for="img22" title="/static/images/systemImg/animal/img22.png"></label>
+							</div>			
+							<input type="radio" id="img22"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/animal/img23.png');">
+								<label for="img23" title="/static/images/systemImg/animal/img23.png"></label>
+							</div>			
+							<input type="radio" id="img23" />	
+						</div>
+						<!-- 蔬菜头像 -->
+						<div id="vegetables" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img01.png');">
+								<label for="img1" title="/static/images/systemImg/vegetables/img01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img02.png');">
+								<label for="img2" title="/static/images/systemImg/vegetables/img02.png"></label>
+							</div>			
+							<input type="radio" id="img2"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img03.png');">
+								<label for="img3" title="/static/images/systemImg/vegetables/img03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img04.png');">
+								<label for="img4" title="/static/images/systemImg/vegetables/img04.png"></label>
+							</div>			
+							<input type="radio" id="img4"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img05.png');">
+								<label for="img5" title="/static/images/systemImg/vegetables/img05.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img06.png');">
+								<label for="img6" title="/static/images/systemImg/vegetables/img06.png"></label>
+							</div>			
+							<input type="radio" id="img6"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img07.png');">
+								<label for="img7" title="/static/images/systemImg/vegetables/img07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img08.png');">
+								<label for="img8" title="/static/images/systemImg/vegetables/img08.png"></label>
+							</div>			
+							<input type="radio" id="img8"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img09.png');">
+								<label for="img9" title="/static/images/systemImg/vegetables/img09.png"></label>
+							</div>			
+							<input type="radio" id="img9" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img10.png');">
+								<label for="img10" title="/static/images/systemImg/vegetables/img10.png"></label>
+							</div>			
+							<input type="radio" id="img10"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img11.png');">
+								<label for="img11" title="/static/images/systemImg/vegetables/img11.png"></label>
+							</div>			
+							<input type="radio" id="img11" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img12.png');">
+								<label for="img12" title="/static/images/systemImg/vegetables/img12.png"></label>
+							</div>			
+							<input type="radio" id="img12"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img13.png');">
+								<label for="img13" title="/static/images/systemImg/vegetables/img13.png"></label>
+							</div>			
+							<input type="radio" id="img13" />
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img14.png');">
+								<label for="img14" title="/static/images/systemImg/vegetables/img14.png"></label>
+							</div>			
+							<input type="radio" id="img14"/>
+							<div class="label" style="background-image: url('/static/images/systemImg/vegetables/img15.png');">
+								<label for="img15" title="/static/images/systemImg/vegetables/img15.png"></label>
+							</div>			
+							<input type="radio" id="img15" />	
+						</div>
+						<!-- 其他  -->
+						<div id="other" class="sysimg">
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user01.png'); background-size: 48px 48px;">
+								<label for="img1" title="/static/images/systemImg/other/user01.png"></label>
+							</div>			
+							<input type="radio" id="img1" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user02.png'); background-size: 48px 48px;">
+								<label for="img2" title="/static/images/systemImg/other/user02.png"></label>
+							</div>			
+							<input type="radio" id="img2" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user03.png'); background-size: 48px 48px;">
+								<label for="img3" title="/static/images/systemImg/other/user03.png"></label>
+							</div>			
+							<input type="radio" id="img3" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user04.png'); background-size: 48px 48px;">
+								<label for="img4" title="/static/images/systemImg/other/user04.png"></label>
+							</div>			
+							<input type="radio" id="img4" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user05.png'); background-size: 48px 48px;">
+								<label for="img5" title="/static/images/systemImg/other/user05.png"></label>
+							</div>			
+							<input type="radio" id="img5" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user06.png'); background-size: 48px 48px;">
+								<label for="img6" title="/static/images/systemImg/other/user06.png"></label>
+							</div>			
+							<input type="radio" id="img6" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user07.png'); background-size: 48px 48px;;">
+								<label for="img7" title="/static/images/systemImg/other/user07.png"></label>
+							</div>			
+							<input type="radio" id="img7" />
+							<div class="label" style="background-image: url('/static/images/systemImg/other/user08.png');">
+								<label for="img8" title="/static/images/systemImg/other/user08.png"></label>
+							</div>			
+							<input type="radio" id="img8" />
+						</div>
+					</form>
+				</div>
+			</div>
+			<!-- 上传头像 -->
+			<div style="margin: 10px 0;">
+				<input type="file" id="file" />
+				<input type="hidden" id="imgUrl" name="imgUrl" th:value="${user.imgUrl}"/>
+				<input type="hidden" th:value="${user.userId}" id="userId" name="userId" />
+				<button type="button" class="btn btn-info" onclick="javascript:$('#file').uploadify('upload')">
+					<i class="fa fa-arrow-circle-o-up"></i>&nbsp;上传
+				</button>
+				<button type="submit" class="btn btn-primary" onclick="savaImgUrl()">
+					<i class="fa fa-floppy-o"></i>&nbsp;保存
+				</button>
+			</div>
+		</div>
+	</body>
+</html>					

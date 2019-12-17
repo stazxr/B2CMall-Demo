@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>商品列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 模糊查询获取分页列表  */
+			function getproductListByLike() {
+				var keyword = $("#search").val();
+				var url = "/product/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+			
+			/* 修改商品状态  */
+			function changeStatus(productId, productName, statusCode) {
+				var flag;
+				if ("PUTAWAY" == statusCode) {
+					flag = confirm("你确定要上架" + productName + "吗?");
+				} else {
+					flag = confirm("你确定要下架" + productName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/product/changeStatus/" + productId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("PUTAWAY" == statusCode) {
+									alert(productName + "宝贝已上架！");
+								} else {
+									alert(productName + "宝贝已下架！");
+								}
+							} else {
+								if ("PUTAWAY" == statusCode) {
+									alert(productName + "宝贝没有上架成功！");
+								} else {
+									alert(productName + "宝贝下架失败！");
+								}
+							}
+							var url = "/product/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新商品列表页面 */
+			function refreshPage() {
+				var url = "/product/index";
+				parent.openFrame(url);
+			}
+			
+			/* 加载tooltip插件  */			
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据商品名称、类别名称、状态名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getproductListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <a class="btn btn-default navbar-btn" href="/product/add" target="_blank">
+		        		添加商品
+		        	</a>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>商品信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>商品编号</th>
+	                  <th>商品类型</th>
+	                  <th>商品名称</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="product:${page.list}">
+	                  	<td th:text="${product.productNo}"></td>
+	                  	<td th:text="|${product.category.parent.categoryName}>>${product.category.categoryName}|"></td>
+	                  	<td th:text="${product.productName}"></td>
+	                  	<td th:if="${product.status.statusCode} eq 'PUTAWAY'" th:text="${product.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${product.status.statusCode} eq 'PUTAWAY'" th:text="${product.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="@{/product/detail(productId=${product.productId})}" target="_blank">详情</a>
+	                			<a class="btn btn-primary btn-sm" th:href="@{/product/update(productId=${product.productId})}" target="_blank">修改</a>
+	                			<a class="btn btn-warning btn-sm" th:if="${product.status.statusCode} eq 'PUTAWAY'" th:href="|javascript:changeStatus(${product.productId},'${product.productName}','SOLDOUT')|">下架</a>
+	                			<a class="btn btn-success btn-sm" th:unless="${product.status.statusCode} eq 'PUTAWAY'" th:href="|javascript:changeStatus(${product.productId},'${product.productName}','PUTAWAY')|">上架</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/product/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/product/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/product/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/product/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

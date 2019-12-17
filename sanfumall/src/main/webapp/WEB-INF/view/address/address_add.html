@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+	  	<meta charset="UTF-8">
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<script src="/static/js/jquery-3.3.1.min.js"></script>
+		<script src="/static/js/bootstrap.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+				var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				var reg = /^([0-9]+)$/;
+				 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			// 自定义联系电话的校验
+			jQuery.validator.addMethod("isCellphone", function(value, element) {   
+			    var cellphone = /^(13[0123456789]|147|15[0|1|2|3|5|6|7|8|9]|166|17[3|6|7|8]|18[0|1|2|3|4|5|6|7|8|9]|19[8|9])\d{8}$/;
+			    return this.optional(element) || (cellphone.test(value));
+			}, "请填写正确的联系电话！");
+		
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var addForm = $("#addForm").serialize();
+					$.ajax({
+						url: "/address/add",
+						method: "post",
+						data: addForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("添加成功！");
+							} else {
+								alert("添加失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/address/index";
+							parent.location.href=url;
+						}
+					})
+				}
+			});
+		
+			$(function() {
+				$("#addForm").validate({
+					rules: {
+						consigneeName: {
+							required: true,
+							checkInput: true
+						},
+						consigneeCellphone: {
+							required: true,
+							isCellphone: true
+						},
+						consigneeDetailAddress: {
+							required: true,
+							checkInput: true
+						},
+						receiverZip: {
+							required: true,
+							digits: true,
+							range: [100000,999999]
+						}
+					},
+					messages: {
+						consigneeName: {
+							required: "不能为空",	
+							checkInput: "禁止输入特殊字符及空格"
+						},
+						consigneeCellphone: {
+							required: "不能为空",	
+							isCellphone: "联系电话格式不正确"
+						},
+						consigneeDetailAddress: {
+							required: "不能为空",	
+							checkInput: "禁止输入特殊字符及空格"
+						},
+						receiverZip: {
+							required: "不能为空",
+							digits: "请输入正确的邮编",
+							range: "请输入正确的邮编"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/address/index";
+				parent.location.href=url;
+			}
+		
+			function getSecondAreaList() {
+				var areaCode = $("#province").val();
+				$.ajax({
+					url: "/area/getSubAreaList",
+					type: "get",
+					data: {"parentCode": areaCode},
+					dataType: "json",
+					success: function(data) {
+						$("#city option").remove();
+						var areaList = data;
+						for (var i = 0 ; i < areaList.length; i++) {
+							var area = areaList[i];
+							var option = "<option value='" + area.areaCode + "'>" + area.areaName + "</option>";
+							$("#city").append(option);
+						}
+						var firstAreaCode = areaList[0].areaCode;
+						getThirdAreaList(firstAreaCode);
+					}
+				});
+			}
+			
+			function getThirdAreaList(firstAreaCode) {
+				var areaCode = null;
+				if (firstAreaCode == null) {
+					areaCode = $("#city").val();
+				} else {
+					areaCode = firstAreaCode;
+				}
+				$.ajax({
+					url: "/area/getSubAreaList",
+					type: "get",
+					data: {"parentCode": areaCode},
+					dataType: "json",
+					success: function(data) {
+						$("#county option").remove();
+						var areaList = data;
+						if (areaList.length == 0) {
+							$("#county").hide();
+						} else {
+							$("#county").show();
+							for (var i = 0 ; i < areaList.length; i++) {
+								var area = areaList[i];
+								var option = "<option value='" + area.areaCode + "'>" + area.areaName + "</option>";
+								$("#county").append(option);
+							}
+						}
+					}
+				});
+			}
+			
+			$(function() {
+				$("#county").hide();
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="addForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="consigneeName" style="text-align: right; line-height: 34px;">收货人姓名 </label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" name="consigneeName" placeholder="请输入收货人姓名" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="consigneeCellphone" style="text-align: right; line-height: 34px;">联系电话</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" name="consigneeCellphone" placeholder="请输入收货人联系电话" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" style="text-align: right; line-height: 34px;">收货地址</label>
+									<div class="col-xs-7">
+										<p><select id="province" class="form-control" onchange="getSecondAreaList()" name="consigneeAddressCode">
+											<option th:each="firstArea:${firstAreaList}" th:value="${firstArea.areaCode}" th:text="${firstArea.areaName}"></option>
+										</select></p>
+										<p><select id="city" class="form-control" onchange="getThirdAreaList()" name="consigneeAddressCode">
+											<option th:each="secondArea:${secondAreaList}" th:value="${secondArea.areaCode}" th:text="${secondArea.areaName}"></option>
+										</select></p>
+										<select id="county" class="form-control" name="consigneeAddressCode">
+											
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="consigneeDetailAddress" style="text-align: right; line-height: 34px;">详细地址</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" name="consigneeDetailAddress" placeholder="请输入详细地址" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="consigneeZip" style="text-align: right; line-height: 34px;">请输入邮编</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" name="consigneeZip" placeholder="请输入邮编" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

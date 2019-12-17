@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>会员详情</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script>
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/member/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<table class="table table-condensed">
+			<caption style="font: 18px 仿宋; text-align: center; margin: 0 auto;">
+				会员详情
+			</caption>
+			<tr>
+				<td align="right" style="width: 35%;">会员ID：</td>
+				<td align="center" th:text="${member.memberId}"></td>
+			</tr>
+			<tr>
+				<td align="right">会员名：</td>
+				<td align="center" th:text="${member.memberName}"></td>
+			</tr>
+			<tr>
+				<td align="right">昵称：</td>
+				<td align="center" th:text="${member.nickname}"></td>
+			</tr>
+			<tr>
+				<td align="right">会员等级：</td>
+				<td align="center" th:if="${member.grade} != null" th:text="${member.grade.gradeName}"></td>
+				<td align="center" th:unless="${member.grade} != null"></td>
+			</tr>
+			<tr>
+				<td align="right">积分：</td>
+				<td align="center" th:text="${member.point}"></td>
+			</tr>
+			<tr>
+				<td align="right">联系电话：</td>
+				<td align="center" th:text="${member.cellphone}"></td>
+			</tr>
+			<tr>
+				<td align="right">电子邮箱：</td>
+				<td align="center" th:text="${member.email}"></td>
+			</tr>
+			<tr>
+				<td align="right">注册时间：</td>
+				<td align="center" th:text="${member.createTime}"></td>
+			</tr>
+			<tr>
+				<td align="right">状态：</td>
+				<td align="center" th:if="${member.status.statusCode} eq 'ENABLE'" th:text="${member.status.statusName}" style="color: green;"></td>
+				<td align="center" th:unless="${member.status.statusCode} eq 'ENABLE'" th:text="${member.status.statusName}" style="color: red;"></td>
+			</tr>
+			<tr>
+				<td align="right" colspan="2"><button type="button" class="btn" onclick="backList()"><i class="fa fa-reply"></i> 返回</button></td>
+			</tr>
+		</table>
+	</body>
+</html>

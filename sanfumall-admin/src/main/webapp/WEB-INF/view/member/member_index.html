@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>角色列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 模糊查询获取分页列表  */
+			function getMemberListByLike() {
+				var keyword = $("#search").val();
+				var url = "/member/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+			
+			/* 打开会员详情模态框  */
+			function openDetailModal(memberId) {
+				var title="<span class='fa fa-user-secret'></span> 会员详情";
+				var url="/member/detail/" + memberId;
+				var width="500px";
+				var height="400px";	
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+				
+			/* 修改会员状态  */
+			function changeStatus(memberId, nickname, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + nickname + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + nickname + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/member/changeStatus/" + memberId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(nickname + "已被启用！");
+								} else {
+									alert(nickname + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(nickname + "启用失败！");
+								} else {
+									alert(nickname + "禁用失败！");
+								}
+							}
+							var url = "/member/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新会员列表页面 */
+			function refreshPage() {
+				var url = "/member/index";
+				parent.openFrame(url);
+			}
+			
+			/* 启动tooltip插件 */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据昵称、邮箱、联系电话、状态名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getMemberListByLike() "><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button> 
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>会员信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>会员ID</th>
+	                  <th>会员名</th>
+	                  <th>昵称</th>
+	                  <th>会员等级</th>
+	                  <th>邮箱</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="member:${page.list}">
+	                  	<td th:text="${member.memberId}"></td>
+	                  	<td th:text="${member.memberName}"></td>
+	                  	<td th:text="${member.nickname}"></td>
+	                  	<td th:if="${member.grade} != null" th:text="${member.grade.gradeName}"></td>
+	                  	<td th:unless="${member.grade} != null"></td>
+	                  	<td th:text="${member.email}"></td>
+	                  	<td th:if="${member.status.statusCode} eq 'ENABLE'" th:text="${member.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${member.status.statusCode} eq 'ENABLE'" th:text="${member.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${member.memberId})|">详情</a>
+	                			<a class="btn btn-success btn-sm" th:if="${member.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${member.memberId},'${member.nickname}','ENABLE')|">启用</a>
+	                			<a class="btn btn-danger btn-sm" th:unless="${member.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${member.memberId},'${member.nickname}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="3" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="4" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/member/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/member/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/member/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/member/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html> 

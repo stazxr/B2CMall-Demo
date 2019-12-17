@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>修改个人密码</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+				var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+				var reg = /^([0-9]+)$/;
+				 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符或空格！");
+			
+			// 拦截submit事件,执行自定义的动作
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var userId = $("#userId").val();
+					var password = $("#password").val();
+					$.ajax({
+						url: "/user/savaNewPwd",
+						method: "put",
+						data: {
+							"userId": userId,
+							"password": password
+						},
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+								// 关闭模态框
+								parent.closeModal();
+								// 刷新父页面
+								var url = "/user/logout";
+								parent.location.href=url;
+							} else {
+								alert("修改失败！");
+								// 关闭模态框
+								parent.closeModal();
+								// 刷新父页面
+								var url = "/user/self";
+								parent.openFrame(url);
+							}
+						}
+					})
+				}
+			});
+			
+			/* validate校验 */
+			$(function() {
+				$("#changePwdForm").validate({
+					rules: {
+						origPassword: {
+							required: true,
+							remote: {
+								url: "/user/checkPassword",
+								type: "get",
+								data: {
+									"userId": function() {
+										var userId = $("#userId").val();
+										return userId;
+									},
+									"password": function() {
+										var password = $("#origPassword").val();
+										return password;
+									}
+								}
+							}
+						},
+						password: {
+							required: true,
+							checkInput: true,
+							minlength: 8,
+							maxlength: 20
+						},
+						checkedpwd: {
+							required: true,
+							equalTo: "#password"
+						}
+					},
+					messages: {
+						origPassword: {
+							required: "请填写原密码",	
+							remote: "密码不正确，如果忘记密码，请点击忘记密码"
+						},
+						password: {
+							required: "密码不能为空",
+							checkInput: "禁止输入特殊字符或空格!",
+							minlength: "长度不能小于8个长度",
+							maxlength: "长度不能大于20个长度"
+						},
+						checkedpwd: {
+							required: "密码不能为空",
+							equalTo: "两次输入的密码不相等!"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+		
+			/* 返回个人信息页面  */
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/user/self";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body" style="margin-top: 20px;">
+							<form class="form-horizontal" role="form" id="changePwdForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="origPassword" style="text-align: right; line-height: 34px;">旧密码</label>
+									<div class="col-xs-7">
+										<input type="hidden" id="userId" name="userId" th:value="${user.userId}" />
+										<input type="password" class="form-control" id="origPassword" name="origPassword" placeholder="请输入原来的密码" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="password" style="text-align: right; line-height: 34px;">新密码</label>
+									<div class="col-xs-7">
+										<input type="password" class="form-control" id="password" name="password" placeholder="请输入新密码" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="checkedpwd" style="text-align: right; line-height: 34px;">确认密码</label>
+									<div class="col-xs-7">
+										<input type="password" class="form-control" id="checkedpwd" name="checkedpwd" placeholder="再次输入新密码" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 提交</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

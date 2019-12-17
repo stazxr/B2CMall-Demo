@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>添加管理员</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+   			 	if(pattern.test(value)) {
+		     		return false;
+		     	} else if(value.indexOf(" ") != -1) {
+		        	return false;
+		     	} else {
+		        	return true;
+		     	}
+			}, "禁止输入特殊字符或空格！");
+			// 自定义联系电话的校验
+			jQuery.validator.addMethod("isCellphone", function(value, element) {   
+			    var cellphone = /^(13[0123456789]|147|15[0|1|2|3|5|6|7|8|9]|166|17[3|6|7|8]|18[0|1|2|3|4|5|6|7|8|9]|19[8|9])\d{8}$/;
+			    return this.optional(element) || (cellphone.test(value));
+			}, "请填写正确的联系电话！");
+			// 自定义邮箱的校验
+			jQuery.validator.addMethod("isEmail", function(value, element) {   
+			    var email = /^[0-9A-Za-z][\.-_0-9A-Za-z]*@[0-9A-Za-z]+(\.[0-9A-Za-z]+)+$/;
+			    return this.optional(element) || (email.test(value));
+			}, "请填写正确的邮箱，该邮箱用于找回密码！");
+			
+			// 拦截submit事件,执行自定义的动作
+			$.validator.setDefaults({
+				submitHandler: function() {
+					// 当点击submit按钮的时候,会执行该javascript添加管理员
+					// 异步提交表单添加信息
+					// jquery中的serialize方法自动封装打包表单的数据
+					var addForm = $("#addForm").serialize();
+					$.ajax({
+						url: "/user/add",
+						method: "post",
+						data: addForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("添加成功！");
+							} else {
+								alert("添加失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/user/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			/* validate校验 */
+			$(function() {
+				$("#addForm").validate({
+					rules: {
+						username: {
+							required: true,
+							checkInput: true,
+							minlength: 2,
+							maxlength: 8
+						},
+						loginName: {
+							required: true,
+							checkInput: true,
+							minlength: 5,
+							remote: {
+								url: "/user/remoteValidateloginName",
+								type: "get",
+								data: {
+									"loginName": function() {
+										var loginName = $("#loginName").val();
+										return loginName;
+									}
+								}
+							}
+						},
+						password: {
+							required: true,
+							checkInput: true,
+							minlength: 8,
+							maxlength: 20
+						},
+						checkedPwd: {
+							required: true,
+							equalTo: "#password"
+						},
+						cellphone: {
+							required: true,
+							isCellphone: true
+						},
+						email: {
+							required: true,
+							isEmail: true
+						}
+					},
+					messages: {
+						username: {
+							required: "姓名不能为空",	
+							checkInput: "禁止输入特殊字符或空格",
+							minlength: "长度不能小于2个长度",
+							maxlength: "长度不能大于8个长度"
+						},
+						loginName: {
+							required: "登录名不能为空",	
+							checkInput: "禁止输入特殊字符或空格",
+							minlength: "长度不能小于5个长度",
+							remote: "该登录名已被占用"
+						},
+						password: {
+							required: "密码不能为空",
+							checkInput: "禁止输入特殊字符或空格",
+							minlength: "长度不能小于8个长度",
+							maxlength: "长度不能大于20个长度"
+						},
+						checkedPwd: {
+							required: "密码不能为空",
+							equalTo: "两次输入的密码不相等"
+						},
+						cellphone: {
+							required: "联系电话不能为空",
+							isCellphone: "请填写正确的联系电话"
+						},
+						email: {
+							required: "电子邮箱不能为空",
+							isEmail: "请填写正确的邮箱，该邮箱用于找回密码"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			/* 返回管理员列表页面  */
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/user/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="addForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="username" style="text-align: right; line-height: 34px;">姓名</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="username" name="username" placeholder="请输入管理员姓名" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="loginName" style="text-align: right; line-height: 34px;">登录名</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="loginName" name="loginName" placeholder="请输入登录名" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="password" style="text-align: right; line-height: 34px;">登录密码</label>
+									<div class="col-xs-7">
+										<input type="password" class="form-control" id="password" name="password" placeholder="请输入登录密码" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="checkedPwd" style="text-align: right; line-height: 34px;">确认登录密码</label>
+									<div class="col-xs-7">
+										<input type="password" class="form-control" id="checkedPwd" name="checkedPwd" placeholder="请重新输入登录密码" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="gender" style="text-align: right; line-height: 34px;">性别</label>
+									<div class="col-xs-7" style="min-height: 34px; line-height: 34px;">
+										<input type="radio" class="radio-inline" name="gender" value='M' checked /> 帅哥
+										<input type="radio" class="radio-inline" name="gender" value='F' /> 美女
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="gender" style="text-align: right; line-height: 34px;">角色</label>
+									<div class="col-xs-7">
+										<select class="form-control" id="roleId" name="roleId">
+											<option th:each="role:${roleList}" th:value="${role.roleId}" th:text="${role.roleName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="cellphone" style="text-align: right; line-height: 34px;">联系电话</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="cellphone" name="cellphone" placeholder="请输入联系电话" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="email" style="text-align: right; line-height: 34px;">电子邮箱</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="email" name="email" placeholder="请输入电子邮箱" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

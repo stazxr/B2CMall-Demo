@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+		<meta charset="utf-8">
+		<meta name="description" content="SanFu.COM-专业的综合网上购物商城,、服装服饰、母婴等数万个品牌优质商品.便捷、诚信的服务，为您提供愉悦的网上购物体验!" />
+		<meta name="Keywords" content="网上购物,网上商城,服装,母婴,手表,SanFu" />
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/init.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/index.css" />
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.css">
+		<script src="/static/js/jquery-3.3.1.min.js"></script>
+		<script src="/static/js/bootstrap.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.js"></script>
+		<style>
+			.ui-autocomplete {
+			    max-height: 300px;
+			    overflow-y: auto;
+			    /* 防止水平滚动条 */
+			    overflow-x: hidden;
+			  }
+		</style>
+		<script>
+			/* 搜索框自动提示信息  */
+			$(function() {
+				var autoCompleteword = $("#autoCompleteword").val();
+				// 截取掉最后一个逗号
+				autoCompleteword = autoCompleteword.substring(0,autoCompleteword.length - 1);
+				var autoCompletewordAry = autoCompleteword.split(",");
+				$("#likeSearch").autocomplete({
+				      source: autoCompletewordAry
+				});
+			});
+			
+			/* 删除购物车 */
+			function deleteCart(cartId) {
+				$.ajax({
+					url: "/cart/delete",
+					type: "delete",
+					data: {"cartId": cartId},
+					dataType: "json",
+					success: function(data) {
+						if (data) {
+							alert("该商品已经从购物车中移除");
+							location.href="/index";
+							// location.reload(true);
+						} else {
+							return false;
+						}
+					}
+				});
+			}
+			
+// 			function getProductList(categoryId) {
+// 				$.ajax({
+// 					url: "/product/index",
+// 					type: "get",
+// 					data: {"categoryId": categoryId},
+// 					dataType: "json",
+// 					success: function(data) {
+// 						alert("功能未完成！");
+// 					}
+// 				});
+// 			}
+		</script>
+	</head>
+	<body>
+		<!-- 返回顶部 -->
+		<div>
+			<p id="backtop">
+				<a href="#top"><span></span>返回<br />顶部</a>
+			</p>
+		</div>
+		<!-- 快捷方式 -->
+		<div id="shortcut-2018">
+			<div class="container">
+				<ul class="shortcut-left pull-left">
+					<li class="shortcut-home">
+						<label class="fa fa-home"></label>
+						<a href="/index">首页</a>
+					</li>
+				</ul>
+				<ul class="shortcut-right pull-right">
+					<li class="shutcut-login" th:if="${member} == null">
+						<a href="/member/login" class="link-login" target="_blank">你好，请登录</a>&nbsp;
+						<a href="/member/register" class="link-regist" target="_blank">免费注册</a>
+					</li>
+					<li class="shutcut-login" th:unless="${member} == null">
+						<a href="#" class="link-regist" target="_blank" th:text="|欢迎，${member.nickname}|"></a>&nbsp;
+					</li>
+					<li class="spacer"></li>
+					<li><a href="#" target="_blank">会员中心</a></li>
+					<li class="spacer"></li>
+					<li><a href="#" target="_blank">我的订单</a></li>
+					<li class="spacer"></li>
+					<li>
+						<a href="/address/index" target="_blank">我的收货地址</a>
+					</li>
+					<li class="spacer"></li>
+					<li><a href="#" target="_blank">我的收藏</a></li>
+					<li class="spacer"></li>
+					<li><a href="#" target="_blank">关于我们</a></li>
+				</ul>
+			</div>	
+		</div>
+		<!-- 头部 -->
+		<div id="header-2018">
+			<div class="container">
+				<!-- 搜索栏 -->
+				<div id="header-search">
+					<div id="top-search" class="search-menu">
+						<div class="search-logo">
+							<a href="#" class="logo">SanFu</a>
+						</div>
+						<div class="search-form">
+							<input type="text" id="likeSearch" class="search-input" autocomplete="off" placeholder="Search..."/>
+							<input type="hidden" id="autoCompleteword" th:value="${autoCompleteword}" />
+							<button type="button" class="search-button" id="searchButton">
+								搜索一下
+							</button>
+						</div>
+					</div>
+				</div>
+				<!-- mini购物车 -->
+				<div id="mini-cart" th:if="${member} != null">
+					<li class="minicart dropdown pull-right">
+						<button id="minicart-btn" class="dropdown-toggle" data-toggle="dropdown">
+							<span class="fa fa-shopping-cart"></span>&nbsp;我的购物车
+						</button>
+						<!-- 购物车内容 -->
+						<ul class="dropdown-menu">
+							<!-- mini购物车标题 -->
+							<li class="dropdown-header"><strong>宝贝集中营</strong></li>
+							<div class="minicart-list">
+								<li th:each="cart:${member.cartList}">
+									<div class="minicart-each">
+										<div class="minicart-product">
+											<img th:src="|http://localhost:8080${cart.sku.product.subImg}|" class="img-rounded img-responsive"/>
+											<a th:href="@{/product/detail(productId=${cart.sku.product.productId})}" target="_blank" class="name" th:text="${cart.sku.product.title}"></a>
+										</div>
+										<div class="price">
+											<span style="color: #f30213;" th:text="|￥${cart.sku.currentPrice}|"></span>
+											<span style="color: #333;" class="num" th:text="|* ${cart.count}|"></span>
+										</div>
+										<div class="delete">
+											<a th:href="|javascript:deleteCart(${cart.cartId})|">删除</a>
+										</div>
+									</div>
+								</li>
+							</div>
+							<li>
+								<a class="goCartIndex" th:href="@{/cart/index(memberId=${member.memberId})}" target="_blank">去购物车</a>
+							</li>
+						</ul>
+					</li>
+				</div>
+				<div id="mini-cart" th:unless="${member} != null"></div>
+				<!-- 随机问候语 -->
+				<div id="hellowords">
+					<!-- 待完成 -->
+				</div>
+				<!-- 头部导航栏 -->
+				<div id="header-nav">
+					<nav class="navbar">
+						<div>
+							<ul class="nav navbar-nav">
+								<!-- 一级菜单 -->
+								<li class="all-menu-nav dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+										全部菜单导航
+									</a>
+									<ul class="dropdown-menu">
+										<!-- 二级菜单 -->
+										<li class="dropdown-submenu third-menu" th:each="firstCategory:${firstCategoryList}">
+											<a href="#" target="_blank" th:text="${firstCategory.categoryName}"></a>
+<!-- 											<a th:onclick="|javascript:getProductList(${firstCategory.categoryId})|" th:text="${firstCategory.categoryName}"></a> -->
+											<ul class="dropdown-menu">
+												<li th:each="secondCategory:${firstCategory.categoryList}">
+													<a href="#" target="_blank" th:text="${secondCategory.categoryName}"></a>
+<!-- 													<a th:onclick="|javascript:getProductList(${secondCategory.categoryId})|" th:text="${secondCategory.categoryName}"></a> -->
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+<!-- 								<li><a href="#" target="_blank">1</a></li> -->
+							</ul>
+						</div>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<!-- 主体 -->
+		<div id="body-2018">
+			<div class="container">
+				<div id="body-header">
+					<!-- 轮播图 -->
+					<div class="my-slideshow">
+						<div id="myCarousel" class="carousel slide">
+							<!-- 轮播指标 -->
+							<ol class="carousel-indicators">
+								<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+								<li data-target="#myCarousel" data-slide-to="1"></li>
+								<li data-target="#myCarousel" data-slide-to="2"></li>
+								<li data-target="#myCarousel" data-slide-to="3"></li>
+								<li data-target="#myCarousel" data-slide-to="4"></li>
+								<li data-target="#myCarousel" data-slide-to="5"></li>
+								<li data-target="#myCarousel" data-slide-to="6"></li>
+								<li data-target="#myCarousel" data-slide-to="7"></li>
+							</ol>   
+							<!-- 轮播项目 -->
+							<div class="carousel-inner">
+								<div class="item active">
+									<a th:href="@{/product/detail(productId=${activeCarouselProduct.productId})}" target="_blank">
+										<img th:src="'http://localhost:8080/' + ${activeCarouselProduct.mainImg}">
+									</a>
+								</div>
+								<div class="item" th:each="carouselProduct:${carouselProductList}">
+									<a th:href="@{/product/detail(productId=${carouselProduct.productId})}" target="_blank">
+										<img th:src="'http://localhost:8080/' + ${carouselProduct.mainImg}">
+									</a>
+								</div>
+							</div>
+							<!-- 轮播导航 -->
+							<a class="left carousel-control" href="#myCarousel" data-slide="prev">
+								<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+							</a>
+							<a class="right carousel-control" href="#myCarousel" data-slide="next">
+								<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+							</a>
+						</div>
+					</div>
+					<!-- 顾客信息 -->
+					<div class="custom" style="background-image: url('/static/images/bg02.jpg'); background-repeat: no-repeat; background-size: 100% 100%; background-attachment: fixed;">
+						<div id="custom-header">
+							<a th:if="${member} == null" href="#" >
+								<img src="/static/images/member_img.jpg">
+							</a>
+							<a th:unless="${member} == null"  th:href="@{/member/changeImg(memberId=${member.memberId})}" >
+								<img th:src="${member.imgUrl}">
+							</a>
+							<div class="custom-name">
+								<span th:if="${member} == null">
+							 		<a href="/member/login">Hi！&nbsp;请登录</a>
+							 	</span>
+							 	<span th:unless="${member} == null">
+							 		<label th:text="|Hi！&nbsp;${member.nickname}|" style="color: red;"></label>
+							 	</span>
+							</div>
+						</div>
+						<div id="custom-body">
+							<div class="dd">
+								<a class="a1" href="#" target="_blank">进入个人中心</a>
+							</div>
+							<div class="dd">
+								<a class="a2" href="#" target="_blank">我的会员</a>
+							</div>
+							<div class="dd">
+								<a class="a3" href="#" target="_blank">我的订单</a>
+							</div>
+							<div class="dd">
+								<a class="a4" href="#" target="_blank">我的购物车</a>	
+							</div>
+							<div class="dd">
+								<a class="a5" href="#" target="_blank">我的收藏</a>	
+							</div>
+							<div class="dd">
+								<a class="a6" href="#" target="_blank">订单历史</a>	
+							</div>
+							<div class="dd">
+								<a class="a7" href="/member/logout">退出登录</a>	
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="content">
+					<div class="my-modal">
+						<div class="my-modal-header">
+							新品上架
+						</div>
+						<div class="my-modal-content">
+							<div class="each" th:each="newProduct:${newProductList}">
+								<a th:href="@{/product/detail(productId=${newProduct.productId})}" target="_blank"><img alt="" th:src="'http://localhost:8080/' + ${newProduct.mainImg}"></a>
+								<p th:text="${newProduct.title}"></p>
+								<span th:text="|￥ ${newProduct.minPrice}|"></span>
+							</div>
+						</div>
+					</div>
+					<div class="my-modal">
+						<div class="my-modal-header">
+							热销产品
+						</div>
+						<div class="my-modal-content" style="min-height: 620px;">
+							<div class="each" th:each="hotProduct:${hotProductList}">
+								<a th:href="@{/product/detail(productId=${hotProduct.productId})}"><img alt="" th:src="'http://localhost:8080/' + ${hotProduct.mainImg}"></a>
+								<p th:text="${hotProduct.title}"></p>
+								<span th:text="|￥ ${hotProduct.minPrice}|"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- 		<!-- 底部 --> -->
+<!-- 		<div id="footer-2018" style="background-color: black;height: 200px;"> -->
+			
+<!-- 		</div> -->
+		<script>
+			$(function(){
+				//当滚动条的位置处于距顶部100像素以下时，跳转链接出现，否则消失
+				$(function () {
+					$(window).scroll(function() {
+						if ($(window).scrollTop() > 500) {
+							$("#backtop").fadeIn(1000);
+						}
+						else {
+							$("#backtop").fadeOut(1000);
+						}
+					});
+					//当点击跳转链接后，回到页面顶部位置
+					$("#backtop").click(function() {
+						if ($('html').scrollTop()) {
+							$('html').animate({ scrollTop: 0 }, 1000);
+							return false;
+						}
+						$('body').animate({ scrollTop: 0 }, 2500);
+						return false;            
+					});       
+				});    
+			});
+			// 移动搜索框到顶端
+			$(function(){
+				$(window).scroll(function() {
+					if ($(window).scrollTop() > 600) {
+						$("#top-search").css({
+							"width": "1140px",
+							"height": "42px",
+							"min-width": "1140px",
+							"position": "fixed",
+							"left": "auto",
+							"top": "0",
+							"background-color": "#f0f3ef",
+							"border-bottom": "2px solid red",
+							"z-index": "2"
+						});
+						$("#header-search .logo").css({
+							"top": "0",
+							"z-index": "-2"
+						});
+					}
+					else {
+						$("#top-search").css({
+							"width": "1140px",
+							"height": "60px",
+							"position": "relative",
+							"border": "none",
+							"z-index": "1"
+						});
+						$("#header-search .logo").css({
+							"top": "10px"
+						});
+					}
+				});
+			})
+			// 下拉默认打开,并且点击失效
+// 　　		$(function () {
+// 		　　　　var openddt = $(".open").children('.dropdown-toggle');
+// 		　　　　openddt.attr('data-toggle', '');
+// 		　　　　openddt.click(function () {
+// 		　　　　　　$(this).siblings(".dropdown-menu").toggle();
+// 		　　　　});
+// 　　		});
+// 			$(function openList(){
+// 				var openddt = $(".open").children('.dropdown-toggle');
+// 			　　　　openddt.attr('data-toggle', '');
+// 			　　　　openddt.click(function () {
+// 			　　　　　　$(this).siblings(".dropdown-menu").toggle();
+// 				});
+// 			})
+		</script>
+	</body>
+</html>

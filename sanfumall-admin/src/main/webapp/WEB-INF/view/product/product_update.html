@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>商品修改</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/uploadify/uploadify.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script src="/static/common/uploadify/jquery.uploadify.js"></script>
+		<script src="/static/common/WangEditor/wangEditor.min.js"></script>
+		<style>
+			table caption {
+				font-size: 26px;
+			    color: red;
+			    border-bottom: 2px solid #333; 
+			    text-indent: 5px;
+			    -webkit-animation: blue 10s infinite; /* Chrome, Safari, Opera */
+			    animation: blue 10s infinite;
+			}
+			/* Chrome, Safari, Opera */
+			@-webkit-keyframes blue {
+			    50% {color: blue;}
+			}
+			/* Standard syntax */
+			@keyframes blue {
+			    50% {color: blue;}
+			}
+			.my-caption {
+				font-size: 16px;
+				color: #666;
+			}
+			#sku > tr > th, #sku > tr > td {
+				text-align: center;
+				white-space: nowrap;
+			}
+			#sku input {
+				width: 140px;
+				text-align:center;
+			}
+		</style>
+		<script>
+			// 在加载页面时，启动uploadify插件
+			$(function(){
+				/* 上传主图片 */
+				$("#file").uploadify({
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/productImgUpload",
+					// 设定上传方式
+					"method": "post",
+					// 设定上传的文本内容
+					"buttonText": "上传主图片",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "uploadProductImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/productImg/" + data;
+						$("#mainImgUrl").val(src);
+						$("#mainImg").attr("src", src);
+					},
+					// 检测不到兼容的flash时触发的事件
+					"onFallback" : function() { 
+			            alert("未检测到Flash,请启用flash插件。"); 
+			        }
+				});
+				
+				/* 上传副图片 */
+				$("#file2").uploadify({
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/productImgUpload",
+					// 设定上传方式
+					"method": "post",
+					// 设定上传的文本内容
+					"buttonText": "上传副图片",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "uploadProductImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/productImg/" + data;
+						$("#subImgUrl").val(src);
+						$("#subImg").attr("src", src);
+					}
+				});
+			});
+			
+			/* 富文本编辑器  */
+			var editor;
+			$(function() {
+				var E = window.wangEditor
+		        editor = new E("#myEditor");
+				// 关闭网络上传
+				editor.customConfig.showLinkImg = false;
+				// 服务器路径
+		        editor.customConfig.uploadImgServer = "/file/productUpload";
+				// 参数名
+		        editor.customConfig.uploadFileName = "uploadProduct";
+				// 回显富文本编辑器的图片
+		        editor.customConfig.uploadImgHooks = {
+		            customInsert: function (insertImg, result, editor) {
+		            	var url = result.url;
+		                insertImg("/static/images/productImg/detail/" + url);
+		            }
+		        };
+				// 创建富文本编辑器
+		        editor.create();
+				// 设置富文本编辑器的宽度
+		        $(".w-e-text-container").css("width", "800px");
+				// 设置富文本编辑器的高度
+		        $(".w-e-text-container").css("height", "500px");
+			});
+			
+			/* validator校验 */
+			$.validator.setDefaults({
+				submitHandler: function() {
+					/* 获取富文本编辑框的HTML内容 */
+					var detail = editor.txt.html();
+					$("#detail").val(detail);
+					var updateForm = $("#updateForm").serialize();
+					$.ajax({
+						url: "/product/update",
+						method: "put",
+						data: updateForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+							} else {
+								alert("修改失败！");
+							}
+							// 刷新父页面
+							var url = "/";
+							location.href=url;
+						}
+					});
+				}
+			});
+			
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			// 校验是否含有特殊字符
+    			if(pattern.test(value)){
+			    	return false;
+				// 校验空格
+			    } else if (value.indexOf(" ") != -1) {
+			       return false;
+				// 通过校验
+			    } else {
+			       return true;
+			    }
+			}, "禁止输入特殊字符及空格");
+			// 价格的校验
+			jQuery.validator.addMethod("isPrice", function(value, element) {   
+			    var price = /((^[1-9]\d*)|^0)(\.\d{0,2}){0,1}$/;
+			    return this.optional(element) || (price.test(value));
+			}, "请输入合理的价格！");
+			// 库存与积分的校验
+			jQuery.validator.addMethod("isStoreOrPoint", function(value, element) {   
+			    var store = /^([1-9]\d*|[0]{1,1})$/;
+			    return this.optional(element) || (store.test(value));
+			}, "请输入正整数！");
+			// 折扣的校验
+			jQuery.validator.addMethod("isDiscount", function(value, element) {   
+			    var discount = /^(0\.(?!0+$)\d{1,2}|1(\.0{1,2})?)$/;
+			    return this.optional(element) || (discount.test(value));
+			}, "(0,1],两位小数");
+			
+			$(function() {
+				$("#updateForm").validate({
+					rules: {
+						productName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/product/remoteValidateProductInfo",
+								type: "get",
+								data: {
+									"productId": function() {
+										var productId = $("#productId").val();
+										return productId;
+									},
+									"productName": function() {
+										var productName = $("#productName").val();
+										return productName;
+									}
+								}
+							}
+						},
+						title: {
+							checkInput: true
+						},
+						sortOrder: {
+							required: true,
+							isStoreOrPoint: true
+						},
+						price: {
+							required: true,
+							isPrice: true
+						},
+						store: {
+							required: true,
+							isStoreOrPoint: true
+						},
+						point: {
+							required: true,
+							isStoreOrPoint: true
+						},
+						discount: {
+							required: true,
+							isDiscount: true
+						}
+					},
+					messages: {
+						productName: {
+							required: "请填写宝贝名称",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "宝贝名称已被占用"
+						},
+						title: {
+							checkInput: "禁止输入特殊字符及空格"
+						},
+						sortOrder: {
+							required: "该项不能为空",
+							isStoreOrPoint: "请输入正整数"
+						},
+						price: {
+							required: "请填写全部价格",
+							isPrice: "请输入合法的价格"
+						},
+						store: {
+							required: "请填写全部库存",
+							isStoreOrPoint: "请输入正整数"
+						},
+						point: {
+							required: "请填写全部积分",
+							isStoreOrPoint: "请输入正整数"
+						},
+						discount: {
+							required: "请填写全部折扣",
+							isDiscount: "(0,1]取值"
+						}
+					}
+				});
+			});
+			// 在加载页面的时候，回显商品详细信息
+			$(function() {
+				var detail = $("#detail").val();
+				editor.txt.html(detail);
+			});	
+				
+			function backList() {
+				location.href="/";
+			}
+		</script>
+	</head>
+	<body background="/static/images/bg02.png" style="background-repeat: no-repeat;background-size: 100% 100%;background-attachment: fixed;">
+		<form role="form" id="updateForm" style="width: 800px; margin: 10px auto; background-color: #fff; border-radius: 8px; box-shadow: 10px 10px 5px #888888;">
+			<table style="width: 800px;">
+				<caption>
+					<i class="fa fa-reddit"></i> <strong>修改宝贝信息</strong>
+				</caption>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table style="border-collapse: separate; border-spacing: 10px; width: 420px;">
+								<tr>
+									<td colspan="2" class="my-caption">
+										<strong>基础信息</strong>
+									</td>
+								</tr>
+								<tr>
+									<td>宝贝类目：</td>
+									<td th:text="|${product.category.parent.categoryName}>>${product.category.categoryName}|"></td>
+								</tr>
+								<tr><td></td></tr>
+								<tr>
+									<td>宝贝名称：</td>
+									<td>
+										<input type="hidden" id="productId" name="productId" th:value="${product.productId}" />
+										<input type="text" class="form-control" id="productName" th:value="${product.productName}" name="productName" maxlength="15" autocomplete="off">
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<label class="error" for="productName" style="color: red;" hidden=""></label>
+									</td>
+								</tr>
+								<tr>
+									<td>宝贝标题：</td>
+									<td>
+										<input type="text" class="form-control" id="title" name="title" th:value="${product.title}" autocomplete="off" maxlength="50" placeholder="最多允许输入50个汉字">
+									</td>
+								</tr>
+								<tr>
+									<td>排序字段：</td>
+									<td>
+										<input type="text" class="form-control" id="sortOrder" name="sortOrder" th:value="${product.sortOrder}" autocomplete="off" maxlength="50" placeholder="最输入宝贝的排序字段">
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<label class="error" for="sortOrder" style="color: red;" hidden=""></label>
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>
+										<label class="error" for="title" style="color: red;" hidden=""></label>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="file" id="file" name="file" />
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="file" id="file2" name="file2" />
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="hidden" th:value="${product.mainImg}" id="mainImgUrl" name="mainImg"/>
+										<img id="mainImg" th:src="${product.mainImg}" style="max-width: 400px; max-height: 400px;">
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<input type="hidden" th:value="${product.subImg}" id="subImgUrl" name="subImg"/>
+										<img id="subImg" th:src="${product.subImg}" style="max-width: 100px; max-height: 100px;">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<hr />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table style="border-collapse: separate; border-spacing: 10px; width: 800px;">
+								<tr>
+									<td class="my-caption">
+										<strong>销售信息</strong>&nbsp;如想添加新的销售信息，请添加新商品！
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div style="padding: 5px 0;">
+											<table id="sku">
+												<tr>
+													<th th:each="value:${product.skuList[0].valueList}" th:text="${value.attribute.attributeName}" style="padding: 0 10px;"></th>
+													<th>价格</th>
+													<th>库存</th>
+													<th>积分</th>
+													<th>折扣</th>
+												</tr>
+												<tr th:each="sku:${product.skuList}">
+													<td th:each="value:${sku.valueList}" th:text="${value.valueName}"></td>
+													<td hidden="">
+														<input type="hidden" name="value" th:each="value:${sku.valueList}" th:value="${value.valueId}" autocomplete="off">
+													</td>
+													<td>
+														<input type="text" name="price" th:value="${sku.price}" class="price" value="0" autocomplete="off">
+													</td>
+													<td>
+														<input type="hidden" name="skuId" th:value="${sku.skuId}" />
+														<input type="text" name="store" th:value="${sku.store}" class="store" value="0" autocomplete="off">
+													</td>
+													<td>
+														<input type="text" name="point" th:value="${sku.point}" class="point" value="0" autocomplete="off">
+													</td>
+													<td>
+														<input type="text" name="discount" th:value="${sku.discount}" class="discount" value="1" autocomplete="off">
+													</td>
+												</tr>
+												<tr>
+													<td th:if="${product.skuList[0].valueList.size()} == 0" hidden=""></td> 
+													<td th:unless="${product.skuList[0].valueList.size()} == 0" th:colspan="${product.skuList[0].valueList.size()}"></td>
+													<td><label class='error' for='price' style='color: red;'></label></td> 
+													<td><label class='error' for='store' style='color: red;'></label></td> 
+													<td><label class='error' for='point' style='color: red;'></label></td> 
+													<td><label class='error' for='discount' style='color: red;'></label></td>
+												</tr>
+											</table>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<hr />
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="form-group">
+							<table>
+								<tr>
+									<td class="my-caption" style="text-indent: 5px;">
+										<strong>宝贝描述</strong>&nbsp;请在编辑框中认真宝贝详细信息，不恰当的信息可能会导致宝贝下架！
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="myEditor"></div>
+										<input type="hidden" id="detail" th:value="${product.detail}" name="detail" />
+									</td>
+								</tr>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="right">
+						<button type="submit" class="btn btn-lg btn-primary">提交</button>
+   	 					<button type="button" class="btn btn-lg btn-default" onclick="backList()">返回</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>

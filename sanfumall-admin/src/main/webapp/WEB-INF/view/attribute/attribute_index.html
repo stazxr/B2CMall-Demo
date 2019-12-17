@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>属性列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增属性模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-yelp'></span> 添加属性";
+				var url="/attribute/add";
+				var width="550px";
+				var height="300px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改属性模态框  */
+			function openUpdateModal(attributeId) {
+				var title="<span class='fa fa-wrench'></span> 修改属性";
+				var url="/attribute/update/" + attributeId;
+				var width="550px";
+				var height="300px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开属性详情模态框  */
+			function openDetailModal(attributeId) {
+				var title="<span class='fa fa-user-secret'></span> 属性详情";
+				var url="/attribute/detail/" + attributeId;
+				var width="500px";
+				var height="250px";	
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getattributeListByLike() {
+				var keyword = $("#search").val();
+				var url = "/attribute/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 修改属性状态  */
+			function changeStatus(attributeId, categoryName, attributeName, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + categoryName + "的" + attributeName + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + categoryName + "的" + attributeName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/attribute/changeStatus/" + attributeId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "的" + attributeName + "已被启用");
+								} else {
+									alert(categoryName + "的" + attributeName + "已被禁用");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "的" + attributeName + "启用失败");
+								} else {
+									alert(categoryName + "的" + attributeName + "禁用失败");
+								}
+							}
+							var url = "/attribute/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新属性列表页面 */
+			function refreshPage() {
+				var url = "/attribute/index";
+				parent.openFrame(url);
+			}
+			
+			/* 加载tooltip插件 */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据属性名称、类别名称、状态名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getattributeListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		添加属性
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>属性信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>属性ID</th>
+	                  <th>属性名称</th>
+	                  <th>所属类别</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="attribute:${page.list}">
+	                  	<td th:text="${attribute.attributeId}"></td>
+	                  	<td th:text="${attribute.attributeName}"></td>
+	                  	<td th:text="|${attribute.category.parent.categoryName}>>${attribute.category.categoryName}|"></td>
+	                  	<td th:if="${attribute.status.statusCode} eq 'ENABLE'" th:text="${attribute.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${attribute.status.statusCode} eq 'ENABLE'" th:text="${attribute.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+  								<a class="btn btn-info btn-sm" th:href="|javascript:openDetailModal(${attribute.attributeId})|">详情</a>
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${attribute.attributeId})|">修改</a>
+	                			<a class="btn btn-success btn-sm" th:if="${attribute.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${attribute.attributeId},'${attribute.category.categoryName}','${attribute.attributeName}','ENABLE')|">启用</a>
+	                			<a class="btn btn-danger btn-sm" th:unless="${attribute.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${attribute.attributeId},'${attribute.category.categoryName}','${attribute.attributeName}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/attribute/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/attribute/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/attribute/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/attribute/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

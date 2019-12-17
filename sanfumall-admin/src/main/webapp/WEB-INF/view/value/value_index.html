@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>属性值列表</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/jquery-ui/jquery-ui.min.css">
+		<link rel="stylesheet" href="/static/css/my.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/common/jquery-ui/jquery-ui.min.js"></script>
+		<script>
+			/* 打开新增属性值模态框  */
+			function openAddModal() {
+				var title="<span class='fa fa-yelp'></span> 添加属性值";
+				var url="/value/add";
+				var width="600px";
+				var height="350px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 打开修改类别模态框  */
+			function openUpdateModal(valueId) {
+				var title="<span class='fa fa-wrench'></span> 修改属性值";
+				var url="/value/update/" + valueId;
+				var width="600px";
+				var height="350px";
+				// 调用父页的方法展示模态框
+				parent.openModal(title, url, width, height);
+			}
+			
+			/* 模糊查询获取分页列表  */
+			function getvalueListByLike() {
+				var keyword = $("#search").val();
+				var url = "/value/index?keyword=" + keyword;
+				parent.openFrame(url);
+			}
+				
+			/* 修改类别状态  */
+			function changeStatus(valueId, categoryName, valueName, statusCode) {
+				var flag;
+				if ("ENABLE" == statusCode) {
+					flag = confirm("你确定要启用" + categoryName + "的" + valueName + "吗?");
+				} else {
+					flag = confirm("你确定要禁用" + categoryName + "的" + valueName + "吗?");
+				}
+				if (flag) {
+					$.ajax({
+						url: "/value/changeStatus/" + valueId + "/" + statusCode,
+						type: "put",
+						dataType: "json",
+						success: function(data) {
+							if (data) {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "的" + valueName + "已被启用！");
+								} else {
+									alert(categoryName + "的" + valueName + "已被禁用！");
+								}
+							} else {
+								if ("ENABLE" == statusCode) {
+									alert(categoryName + "的" + valueName + "启用失败！");
+								} else {
+									alert(categoryName + "的" + valueName + "禁用失败！");
+								}
+							}
+							var url = "/value/index";
+							parent.openFrame(url);
+						} 
+					});
+				}
+			}
+			
+			/* 刷新属性值列表页面 */
+			function refreshPage() {
+				var url = "/value/index";
+				parent.openFrame(url);
+			}
+			
+			/* 加载tooltip插件 */
+			$(function() {
+			    $(document).tooltip();
+			});
+		</script>
+	</head>
+	<body>
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+		    <div>
+		        <form class="navbar-form navbar-right">
+		            <div class="form-group">
+		                <input type="text" id="search" class="form-control" placeholder="Search..." autocomplete="off" title="可以根据属性值名称、状态名称查询" />
+		            </div>
+		            <button type="submit" class="btn btn-default" onclick="getvalueListByLike()"><i class="fa fa-search"></i></button>
+		            <button type="submit" class="btn btn-default" onclick="refreshPage()"><i class="fa fa-refresh"></i></button>
+		            <button type="button" class="btn btn-default navbar-btn" onclick="openAddModal()">
+		        		添加属性值
+		        	</button>
+		        </form>
+		    </div>
+			</div>
+		</nav>
+		<div class="table-responsive">
+            <table class="table table-hover" id="mytable">
+            	<caption>
+            		<strong>属性值信息列表</strong>
+            	</caption>
+              	<thead>
+                	<tr>
+	                  <th>属性值ID</th>
+	                  <th>属性值名称</th>
+	                  <th>所属属性</th>
+	                  <th>状态</th>
+	                  <th>操作</th>
+                	</tr>
+              	</thead>
+              	<tbody>
+                	<tr th:each="value:${page.list}">
+	                  	<td th:text="${value.valueId}"></td>
+	                  	<td th:text="${value.valueName}"></td>
+	                  	<td th:text="|${value.attribute.category.parent.categoryName}>>${value.attribute.category.categoryName}>>${value.attribute.attributeName}|"></td>
+	                  	<td th:if="${value.status.statusCode} eq 'ENABLE'" th:text="${value.status.statusName}" style="color: green;"></td>
+	                  	<td th:unless="${value.status.statusCode} eq 'ENABLE'" th:text="${value.status.statusName}" style="color: red;"></td>
+                		<td style="min-width: 206px;">
+                			<div class="btn-group">
+	                			<a class="btn btn-primary btn-sm" th:href="|javascript:openUpdateModal(${value.valueId})|">修改</a>
+	                			<a class="btn btn-success btn-sm" th:if="${value.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${value.valueId},'${value.attribute.category.categoryName}','${value.valueName}','ENABLE')|">启用</a>
+	                			<a class="btn btn-danger btn-sm" th:unless="${value.status.statusCode} eq 'DISABLE'" th:href="|javascript:changeStatus(${value.valueId},'${value.attribute.category.categoryName}','${value.valueName}','DISABLE')|">禁用</a>
+  							</div>
+                		</td>
+                	</tr>
+              	</tbody>
+              	<tfoot>
+              		<tr>
+						<td colspan="2" style="text-align: left;">
+							共查询
+							<label th:text="${page.totalSize}"></label>
+							条结果，共
+							<label th:text="${page.totalPage}"></label>
+							页。
+						</td>
+						<td colspan="3" style="text-align: right;">
+							<a class="btn btn-primary" th:href="@{/value/index(pageNum=1,keyword=${page.keyword})}">首页</a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == 1" href="#">上一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == 1" th:href="@{/value/index(pageNum=${page.pageNum - 1},keyword=${page.keyword})}">上一页</a>
+							<a class="btn btn-primary" th:text="${page.pageNum}"></a>
+							<a class="btn btn-primary disabled" th:if="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" href="#">下一页</a>
+							<a class="btn btn-primary" th:unless="${page.pageNum} == ${page.totalPage} or ${page.totalPage} == 0" th:href="@{/value/index(pageNum=${page.pageNum + 1},keyword=${page.keyword})}">下一页</a>
+							<a class="btn btn-primary" th:href="@{/value/index(pageNum=${page.totalPage},keyword=${page.keyword})}">尾页</a>
+						</td>
+					</tr>
+              	</tfoot>
+			</table>
+    	</div>
+	</body>
+</html>

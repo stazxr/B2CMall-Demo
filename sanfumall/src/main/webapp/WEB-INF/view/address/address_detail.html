@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>SanFu商城（SanFu.COM）正品低价、品质保障、配送及时、轻松购物！</title>
+	  	<meta charset="UTF-8">
+		<link rel="icon" href="/static/images/favorite.ico" type="image/x-icon"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<script src="/static/js/jquery-3.3.1.min.js"></script>
+		<script src="/static/js/bootstrap.js"></script>
+		<script>
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+			}
+		</script>		
+	</head>
+	<body>
+		<table class="table table-condensed">
+			<tr>
+				<td align="right" style="width: 35%;">收货人姓名：</td>
+				<td align="center" th:text="${address.consigneeName}"></td>
+			</tr>
+			<tr>
+				<td align="right">联系电话：</td>
+				<td align="center" th:text="${address.consigneeCellphone}"></td>
+			</tr>
+			<tr>
+				<td align="right">收货地址：</td>
+				<td align="center" th:text="${address.consigneeAddress}"></td>
+			</tr>
+			<tr>
+				<td align="right">详细地址：</td>
+				<td align="center" th:text="${address.consigneeDetailAddress}"></td>
+			</tr>
+			<tr>
+				<td align="right">邮编：</td>
+				<td align="center" th:text="${address.consigneeZip}"></td>
+			</tr>
+			<tr>
+				<td align="right" colspan="2"><button type="button" class="btn" onclick="backList()"><i class="fa fa-reply"></i> 返回</button></td>
+			</tr>
+		</table>
+	</body>
+</html>

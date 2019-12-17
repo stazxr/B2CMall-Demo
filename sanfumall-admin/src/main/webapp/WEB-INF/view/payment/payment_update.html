@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>支付类型修改</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<link rel="stylesheet" href="/static/common/uploadify/uploadify.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script src="/static/common/uploadify/jquery.uploadify.js"></script>
+		<script>
+			
+			$(function(){
+				$("#file").uploadify({
+					// 设定上传动画效果swf路径：必须
+					"swf": "/static/common/uploadify/uploadify.swf",
+					// 设定上传请求路径：必须
+					"uploader": "/file/paymentIconUpload",
+					// 设定上传方式
+					"method": "post",
+					// 设定上传的文本内容
+					"buttonText": "选择图标",
+					// 设定上传按钮样式
+					"buttonClass": "btn btn-info",
+					// 设置按钮的宽度
+					"height": "120px",
+					// 设置按钮的高度
+					"height": "34px",
+					// 定义上传数据处理文件中接收数据使用的文件对象名（传到后台的文件名）
+					"fileObjName": "paymentIconImg",
+					// 设定上传文件的样式
+					"fileTypeExts" : "*.gif; *.jpg; *.png; *.jpeg", 
+					// 限制上传文件的大小
+					"fileSizeLimit" : "100KB",
+					// 一次只允许选择一个文件
+					"multi": false,
+					// 设置进度条以百分比显示
+					"progressData": "percentage",
+					// 设置上传完成后从上传队列中移除的时间（单位：秒）。 
+					"removeTimeout" : 0,
+					// 设定上传成功后执行的函数
+					"onUploadSuccess": function(file, data, response){
+						var src = "/static/images/paymentIcon/" + data;
+						$("#icon").val(src);
+						$("#iconImg").attr("src", src);
+					},
+					// 检测不到兼容的flash时触发的事件
+					"onFallback" : function() { 
+			            alert("未检测到Flash,请启用flash插件。"); 
+			        }
+				});
+			});
+		
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			var reg = /^([0-9]+)$/;
+    			 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var updateForm = $("#updateForm").serialize();
+					$.ajax({
+						url: "/payment/update",
+						method: "put",
+						data: updateForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("修改成功！");
+							} else {
+								alert("修改失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/payment/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			$(function() {
+				$("#updateForm").validate({
+					rules: {
+						paymentName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/payment/remoteValidatePaymentInfo",
+								type: "get",
+								data: {
+									"paymentId": function() {
+										var paymentId = $("#paymentId").val();
+										return paymentId;
+									},
+									"paymentName": function() {
+										var paymentName = $("#paymentName").val();
+										return paymentName;
+									}
+								}
+							}
+						}
+					},
+					messages: {
+						paymentName: {
+							required: "不能为空",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "该支付类型名称已被占用"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			function backList() {
+				// 关闭模态框
+				parent.closeModal();
+				// 刷新父页面
+				var url = "/payment/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0;">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="updateForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="iconImg" style="text-align: right; line-height: 34px;">支付图标</label>
+									<div class="col-xs-7">
+										<input type="hidden" id="icon" name="icon" />
+										<img id="iconImg" th:src="${payment.icon}" style="width: 48px; height: 48px;">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="paymentName" style="text-align: right; line-height: 34px;">支付类型名称 </label>
+									<div class="col-xs-7">
+										<input type="hidden" id="paymentId" name="paymentId" th:value="${payment.paymentId}" />
+										<input type="text" class="form-control" id="paymentName" name="paymentName" th:value="${payment.paymentName}" placeholder="请输入支付类型名称" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<input type="file" id="file" />								
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

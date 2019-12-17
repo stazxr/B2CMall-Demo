@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-cmn-Hans">
+	<head>
+		<title>商品类别添加页面</title>
+		<meta charset="UTF-8">
+		<link rel="shortcut icon" type="image/ico" href="/static/images/favorite.ico"/>
+		<link rel="stylesheet" href="/static/css/bootstrap.css">
+		<link rel="stylesheet" href="/static/css/font-awesome.css">
+		<script src="/static/js/jquery-3.2.1.min.js"></script>
+		<script src="/static/js/bootstrap.min.js"></script>
+		<script src="/static/js/jquery.validate.min.js"></script>
+		<script>
+			// 特殊字符的校验
+			jQuery.validator.addMethod("checkInput", function(value, element) {
+    			var pattern = new RegExp("[.`~!@#$^&*=|{}':;',\\[\\]<>《》/?~！@#￥……&*|{}【】‘；：”“'。，、？' ']");
+    			var reg = /^([0-9]+)$/;
+    			 if(pattern.test(value)){
+			     	return false;
+			     }else if(value.indexOf(" ") != -1){
+			        return false;
+			     }else{
+			        return true;
+			     }
+			}, "禁止输入特殊字符及空格");
+			
+			$.validator.setDefaults({
+				submitHandler: function() {
+					var addForm = $("#addForm").serialize();
+					$.ajax({
+						url: "/category/add",
+						method: "post",
+						data: addForm,
+						dataType: "json",
+						success: function(data) {
+							if(data) {
+								alert("添加成功！");
+							} else {
+								alert("添加失败！");
+							}
+							// 关闭模态框
+							parent.closeModal();
+							// 刷新父页面
+							var url = "/category/index";
+							parent.openFrame(url);
+						}
+					})
+				}
+			});
+			
+			$(function() {
+				$("#addForm").validate({
+					rules: {
+						categoryName: {
+							required: true,
+							checkInput: true,
+							remote: {
+								url: "/category/remoteValidateCategoryInfo",
+								type: "get",
+								data: {
+									"categoryName": function() {
+										var categoryName = $("#categoryName").val();
+										return categoryName;
+									}
+								}
+							}
+						},
+						sortOrder: {
+							required: true,
+							digits: true,
+							range: [1,100000]
+						}
+					},
+					messages: {
+						categoryName: {
+							required: "类别名称不能为空",	
+							checkInput: "禁止输入特殊字符及空格",
+							remote: "该类别名称已被占用"
+						},
+						sortOrder: {
+							required: "排序字段不能为空",
+							digits: "必须输入正整数",
+							range: "不能超过[1,100000]"
+						}
+					},
+					errorElement: "em",
+					errorPlacement: function(error, element) {
+						// 为.error增加"help-block"样式
+						error.addClass("help-block");
+						// 为input框增加图标
+						element.parents(".col-xs-7").addClass("has-feedback");
+						if (element.prop("type") === "checkbox") {
+							error.insertAfter(element.parent("label"));
+						} else {
+							error.insertAfter(element);
+						}
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!element.next("span")[0]) {
+							$("<span class='glyphicon glyphicon-remove form-control-feedback'></span>").insertAfter(element);
+						}
+					},
+					success: function (label, element) {
+						// 添加span元素（如果不存在），并将图标类应用于它。
+						if (!$(element).next("span")[0]) {
+							$("<span class='glyphicon glyphicon-ok form-control-feedback'></span>").insertAfter($(element));
+						}
+					},
+					highlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-error").removeClass("has-success");
+						$(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+					},
+					unhighlight: function ( element, errorClass, validClass ) {
+						$(element).parents(".col-xs-7").addClass("has-success").removeClass("has-error");
+						$(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+					}
+				})
+			});
+			
+			// 检测是添加一级类别，还是二级类别
+			function checkLevel() {
+				var level = $("#level").val();
+				if (level == '2') {
+					$("#firstCategoryId").show();
+				} else {
+					$("#firstCategoryId").hide();
+				}
+			}
+			
+			// 在加载页面时，隐藏一级类别的select框
+			$(function(){
+				$("#firstCategoryId").hide();
+			});
+			
+			// 关闭模态框，返回类别列表页面
+			function backList() {
+				parent.closeModal();
+				var url = "/category/index";
+				parent.openFrame(url);
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default" style="border: 0">
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="addForm">
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="level" style="text-align: right; line-height: 34px;">新增类别等级 </label>
+									<div class="col-xs-7">
+										<select id="level" name="level" class="form-control" onchange="checkLevel()">
+											<option value="1">一级类别</option>
+											<option value="2">二级类比</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group" id="firstCategoryId">
+									<label class="col-xs-3 control-label" for="parent_id" style="text-align: right; line-height: 34px;">选择一级类别</label>
+									<div class="col-xs-7">
+										<select name="parentId" class="form-control">
+											<option th:each="category:${firstCategoryList}" th:value="${category.categoryId}" th:text="${category.categoryName}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="categoryName" style="text-align: right; line-height: 34px;">新增类别名称</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="categoryName" name="categoryName" placeholder="请输入类别名称" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-xs-3 control-label" for="sortOrder" style="text-align: right; line-height: 34px;">排序字段</label>
+									<div class="col-xs-7">
+										<input type="text" class="form-control" id="sortOrder" name="sortOrder" placeholder="请输入排序字段" autocomplete="off" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-xs-3 col-xs-offset-4">
+										<button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
+									</div>
+									<div class="col-xs-3">
+										<button type="button" class="btn btn-primary" onclick="backList()"><i class="fa fa-reply"></i> 返回</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
